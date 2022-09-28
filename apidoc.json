@@ -1,0 +1,15 @@
+{
+    "name": "BlindTest",
+    "version": "0.0.1",
+    "description": "BlindTest API documentation",
+    "title": "API Documentation",
+    "url": "http://localhost:4000",
+    "template": {
+      "forceLanguage": "en",
+      "withCompare": true,
+      "withGenerator": true
+    },
+    "order": [
+   
+    ]
+  }

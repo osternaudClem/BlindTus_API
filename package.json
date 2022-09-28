@@ -1,0 +1,41 @@
+{
+  "name": "blindtest-api",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "doc": "apidoc -i ./ -o doc"
+  },
+  "dependencies": {
+    "@babel/plugin-proposal-object-rest-spread": "^7.17.3",
+    "apidoc": "^0.51.1",
+    "babel-cli": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "date-fns": "^2.29.3",
+    "express": "^4.18.0",
+    "express-validator": "^6.14.2",
+    "express-winston": "^4.2.0",
+    "kill-port": "^1.6.1",
+    "last-fm": "^5.3.0",
+    "moment-timezone": "^0.5.37",
+    "mongoose": "^6.3.1",
+    "moviedb-promise": "^3.1.14",
+    "nodemailer": "^6.7.8",
+    "nodemailer-express-handlebars": "^5.0.0",
+    "nodemailer-sendinblue-transport": "^1.2.3",
+    "nodemon": "^2.0.15",
+    "omdbapi": "^3.0.0",
+    "spotify-web-api-node": "^5.0.2",
+    "validator": "^13.7.0",
+    "winston": "^3.7.2",
+    "yt-search": "^2.10.3"
+  }
+}
