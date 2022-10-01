@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-object-rest-spread": "^7.17.3",
+    "@socket.io/admin-ui": "^0.5.0",
     "apidoc": "^0.51.1",
     "babel-cli": "^6.26.0",
     "babel-polyfill": "^6.26.0",
@@ -33,7 +34,9 @@
     "nodemailer-sendinblue-transport": "^1.2.3",
     "nodemon": "^2.0.15",
     "omdbapi": "^3.0.0",
+    "socket.io": "^4.5.2",
     "spotify-web-api-node": "^5.0.2",
+    "uuid": "^9.0.0",
     "validator": "^13.7.0",
     "winston": "^3.7.2",
     "yt-search": "^2.10.3"
