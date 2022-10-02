@@ -13,7 +13,7 @@ const router = express.Router();
  *
  */
 router.get('/', async (req, res) => {
-    return res.json(await Users.getUsers());
+  return res.json(await Users.getUsers());
 });
 
 /**
@@ -28,8 +28,8 @@ router.get('/', async (req, res) => {
  *
  */
 router.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    return res.json(await Users.getUser(id));
+  const { id } = req.params;
+  return res.json(await Users.getUser(id));
 });
 
 /**
@@ -42,42 +42,42 @@ router.get('/:id', async (req, res) => {
  *
  */
 router.post(
-    '/',
+  '/',
 
-    body('username').custom(value => {
-        if (!/^[a-z0-9]+$/i.test(value)) {
-            throw new Error('The username can contain only letters and numbers.');
-        }
-        return true;
-    }),
-
-    body('email').isEmail().withMessage('Invalid e-mail'),
-
-    body('password').custom(value => {
-        const uppercase = /[A-Z]+/;
-        const lowercase = /[a-z]+/;
-        const digit = /[0-9]+/;
-
-        if (!uppercase.test(value) || !lowercase.test(value) || !digit.test(value) || value.length < 8) {
-            throw new Error('The password must be at least 8 characters long and contain uppercase and lowercase letters and digits.');
-        }
-
-        return true;
-    }),
-
-    async (req, res, next) => {
-        try {
-            const validationErrors = validationResult(req);
-
-            if (!validationErrors.isEmpty()) {
-                return res.status(400).json({ errors: validationErrors.array() });
-            }
-
-            return res.json(await Users.postUser(req.body));
-        } catch (error) {
-            next(error);
-        }
+  body('username').custom(value => {
+    if (!/^[a-z0-9]+$/i.test(value)) {
+      throw new Error('The username can contain only letters and numbers.');
     }
+    return true;
+  }),
+
+  body('email').isEmail().withMessage('Invalid e-mail'),
+
+  body('password').custom(value => {
+    const uppercase = /[A-Z]+/;
+    const lowercase = /[a-z]+/;
+    const digit = /[0-9]+/;
+
+    if (!uppercase.test(value) || !lowercase.test(value) || !digit.test(value) || value.length < 8) {
+      throw new Error('The password must be at least 8 characters long and contain uppercase and lowercase letters and digits.');
+    }
+
+    return true;
+  }),
+
+  async (req, res, next) => {
+    try {
+      const validationErrors = validationResult(req);
+
+      if (!validationErrors.isEmpty()) {
+        return res.status(400).json({ errors: validationErrors.array() });
+      }
+
+      return res.json(await Users.postUser(req.body));
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
 /**
@@ -92,9 +92,9 @@ router.post(
  * @apiSuccess {Object} user
  */
 router.post('/confirm', async (req, res) => {
-    const { token } = req.body;
+  const { token } = req.body;
 
-    return res.json(await Users.confirm(token));
+  return res.json(await Users.confirm(token));
 });
 
 /**
@@ -110,9 +110,49 @@ router.post('/confirm', async (req, res) => {
  *
  */
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    return res.json(await Users.login(email, password));
+  const { email, password } = req.body;
+  return res.json(await Users.login(email, password));
 });
+
+/**
+ * @api {patch} /api/users/changePassword/:id Update password
+ * @apiVersion 0.0.1
+ * @apiName PatchUsersPassword
+ * @apiGroup Users
+ * 
+ * @apiParam (Params) {String} id
+ *
+ * @apiSuccess {Object} user
+ *
+ */
+router.patch(
+  '/changePassword/:id',
+  body('newPassword').custom(value => {
+    const uppercase = /[A-Z]+/;
+    const lowercase = /[a-z]+/;
+    const digit = /[0-9]+/;
+
+    if (!uppercase.test(value) || !lowercase.test(value) || !digit.test(value) || value.length < 8) {
+      throw new Error('The password must be at least 8 characters long and contain uppercase and lowercase letters and digits.');
+    }
+
+    return true;
+  }),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const validationErrors = validationResult(req);
+
+      if (!validationErrors.isEmpty()) {
+        return res.status(400).json({ errors: validationErrors.array() });
+      }
+
+      return res.json(await Users.updatePassword(id, req.body));
+    } catch (error) {
+      next(error);
+    }
+  }
+)
 
 /**
  * @api {patch} /api/users/:id Update an user
@@ -125,10 +165,15 @@ router.post('/login', async (req, res) => {
  * @apiSuccess {Object} user
  *
  */
-router.patch('/:id', async (req, res) => {
-    const { id } = req.params;
-    return res.json(await Users.patchUser(id, req.body));
-});
+router.patch('/:id', async (req, res, next) => {
+    try {
+      const { id } = req.params;
+
+      return res.json(await Users.patchUser(id, req.body));
+    } catch (error) {
+      next(error);
+    }
+  });
 
 /**
  * @api {delete} /api/users/:id Delete an user
@@ -142,8 +187,8 @@ router.patch('/:id', async (req, res) => {
  *
  */
 router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
-    return res.json(await Users.deleteUser(id));
+  const { id } = req.params;
+  return res.json(await Users.deleteUser(id));
 });
 
 module.exports = router;

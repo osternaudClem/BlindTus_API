@@ -36,6 +36,15 @@ const UsersSchema = new Schema({
     default: Date.now(),
   },
 
+  avatar: {
+    type: 'string',
+  },
+
+  avatarSettings: {
+    type: 'map',
+    of: 'string',
+  },
+
   // Associations
   today: [{
     type: Schema.Types.ObjectId,

@@ -55,6 +55,34 @@ export async function postUser(user) {
   }
 }
 
+export async function updatePassword(userId, { password, newPassword }) {
+  if (!userId) {
+    return errorMessages.generals.missingId;
+  }
+
+  try {
+    const user = await UsersModel.findById(userId);
+
+    if (!user) {
+      return errorMessages.users.notFound;
+    }
+
+    const isValidPass = await comparePassword(password, user.password);
+
+    if (!isValidPass) {
+      return {
+        error: 'wrongPassword', messages: 'Mot de passe incorrect'
+      };
+    }
+
+    user.password = newPassword;
+
+    return user.save();
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function patchUser(userId, updatesAttributes) {
   if (!userId) {
     return errorMessages.generals.missingId;
@@ -69,9 +97,13 @@ export async function patchUser(userId, updatesAttributes) {
 
     const updatedUser = mergeEntity(updatesAttributes, UsersModel);
 
-    return await updatedUser.save();
+    for (const key in updatedUser) {
+      user[key] = updatedUser[key];
+    }
+
+    return await user.save();
   } catch (error) {
-    return error;
+    throw error;
   }
 }
 
@@ -117,34 +149,35 @@ export async function login(email, password) {
 
     if (!isValidPass) {
       return {
-        error: 'wrongPassword', message: 'Wrong password'};
+        error: 'wrongPassword', message: 'Wrong password'
+      };
     }
 
-      // Don't send password to client
-      user.password = undefined;
-      return user;
-    } catch (error) {
-      return error;
-    }
+    // Don't send password to client
+    user.password = undefined;
+    return user;
+  } catch (error) {
+    return error;
   }
+}
 
 export async function confirm(token) {
-    const user = await UsersModel.findOne({ token });
+  const user = await UsersModel.findOne({ token });
 
-    if (!user) {
-      return { messages: errorMessages.users.notFound, error: true };
-    }
-
-    // 1 day expiration date
-    const expiresIn = 1000 * 60 * 60 * 24;
-
-    if ((Date.now() - user.expires) > expiresIn) {
-      await user.remove();
-      return res.json('Le lien de validation a expiré ! Le compte a été supprimé !');
-    }
-
-    user.confirmed = true;
-    await user.save();
-
-    return user;
+  if (!user) {
+    return { messages: errorMessages.users.notFound, error: true };
   }
+
+  // 1 day expiration date
+  const expiresIn = 1000 * 60 * 60 * 24;
+
+  if ((Date.now() - user.expires) > expiresIn) {
+    await user.remove();
+    return res.json('Le lien de validation a expiré ! Le compte a été supprimé !');
+  }
+
+  user.confirmed = true;
+  await user.save();
+
+  return user;
+}
