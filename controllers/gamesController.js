@@ -26,7 +26,8 @@ export async function getGame(gameId) {
         populate: {
           path: 'movie',
         },
-      });
+      })
+      .populate('created_by');
 
     } else {
       game = await GamesModel.findOne({ code: gameId }).populate({
@@ -34,7 +35,8 @@ export async function getGame(gameId) {
         populate: {
           path: 'movie',
         },
-      });
+      })
+      .populate('created_by');
     }
 
     if (!game) {

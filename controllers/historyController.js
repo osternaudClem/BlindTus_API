@@ -9,7 +9,13 @@ export async function getAllHistory(userId) {
       filter.user = userId
     }
 
-    const history = await HistoryModel.find(filter).populate('game');
+    const history = await HistoryModel.find(filter).populate({
+      path: 'game',
+      populate: {
+        path: 'created_by',
+      }
+    });
+    
     return history;
   } catch (error) {
     return error;
@@ -22,8 +28,13 @@ export async function getHistory(historyId) {
   }
 
   try {
-    const history = await HistoryModel.findById(historyId).populate('user').populate('game');
-    
+    const history = await HistoryModel.findById(historyId).populate('user').populate({
+      path: 'game',
+      populate: {
+        path: 'created_by',
+      }
+    });
+
     if (!history) {
       return errorMessages.history.notFound;
     }
@@ -36,7 +47,7 @@ export async function getHistory(historyId) {
 
 export async function generateHistory(history) {
   const newHistory = createNewEntity(history, HistoryModel);
-  
+
   try {
     return await newHistory.save();
   } catch (error) {

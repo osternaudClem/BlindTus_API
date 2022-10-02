@@ -24,6 +24,11 @@ const GamesSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Musics',
   }],
+
+  created_by: {
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+  },
 },
 {
   timestamps: {
