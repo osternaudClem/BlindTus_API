@@ -5,25 +5,25 @@ import mongoose from 'mongoose';
 import winston from 'winston';
 import expressWinston from 'express-winston';
 import colors from 'colors';
+import http from 'http';
+import { instrument } from '@socket.io/admin-ui';
+import socketio from './socket/Socket';
 const errorController = require('./controllers/errorController');
 
 import {
-    CategoriesRoute,
-    MusicsRoute,
-    MoviesRoute,
-    UsersRoute,
-    GamesRoute,
-    HistoryRoute,
-    TodayRoute,
-    HistoryTodayRoute,
+  CategoriesRoute,
+  MusicsRoute,
+  MoviesRoute,
+  UsersRoute,
+  GamesRoute,
+  HistoryRoute,
+  TodayRoute,
+  HistoryTodayRoute,
 } from './routes';
-
-// import { ErrorController } from './controllers';
 
 const PORT = process.env.PORT || 4000;
 const app = express();
-
-console.log('PORT', PORT);
+const server = http.createServer(app);
 
 // connect to Mongo when the app initializes
 mongoose.connect(`mongodb://localhost:27017/blindTest`);
@@ -34,15 +34,15 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 
 app.use(expressWinston.logger({
-    transports: [
-        new winston.transports.Console({
-            format: winston.format.simple()
-        }),
-    ],
-    meta: false,
-    msg: `{{res.statusCode}} - {{req.method}} - {{req.url}} - {{res.responseTime}}ms`,
-    expressFormat: true,
-    colorize: true,
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.simple()
+    }),
+  ],
+  meta: false,
+  msg: `{{res.statusCode}} - {{req.method}} - {{req.url}} - {{res.responseTime}}ms`,
+  expressFormat: true,
+  colorize: true,
 }));
 
 // routes
@@ -55,9 +55,13 @@ app.use('/api/users', UsersRoute);
 app.use('/api/games', GamesRoute);
 app.use('/api/history', HistoryRoute);
 app.use('/api/historytoday', HistoryTodayRoute);
-
 app.use(errorController);
 
-app.listen(PORT, () => {
-    console.log('Server is running on port ' + `${PORT}`.green);
+// Websocket
+const io = socketio.getIo(server);
+instrument(io, { auth: false});
+
+
+server.listen(PORT, () => {
+  console.log('Server is running on port ' + `${PORT}`.green);
 });

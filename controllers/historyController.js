@@ -2,9 +2,14 @@ import { HistoryModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 
-export async function getAllHistory() {
+export async function getAllHistory(userId) {
+  let filter = {};
   try {
-    const history = await HistoryModel.find().populate('game');
+    if (userId) {
+      filter.user = userId
+    }
+
+    const history = await HistoryModel.find(filter).populate('game');
     return history;
   } catch (error) {
     return error;
