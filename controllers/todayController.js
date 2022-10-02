@@ -28,7 +28,6 @@ export async function postMusic(music) {
     const newMusic = createNewEntity(music, TodayModel);
     return newMusic.save();
   } catch (error) {
-    console.log('>>> error', error)
     return error;
   }
 }
