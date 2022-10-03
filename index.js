@@ -26,7 +26,7 @@ const app = express();
 const server = http.createServer(app);
 
 // connect to Mongo when the app initializes
-mongoose.connect(`mongodb://localhost:27017/blindTest`);
+mongoose.connect(`mongodb+srv://Cl3tus:YNpBR6Q67pGFaHvP@cluster0.ukxknfk.mongodb.net/BlindTus?retryWrites=true&w=majority`);
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
