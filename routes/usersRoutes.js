@@ -13,7 +13,8 @@ const router = express.Router();
  *
  */
 router.get('/', async (req, res) => {
-  return res.json(await Users.getUsers());
+  const { usernames } = req.query;
+  return res.json(await Users.getUsers(usernames));
 });
 
 /**

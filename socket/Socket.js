@@ -76,7 +76,6 @@ const getIo = function (server) {
     socket.on('CREATE_ROOM', ({ username, room, settings }, callback) => {
       const user = joinRoom(socket, username, room, true);
 
-
       addRoom({ id: room, creator: user.id, settings });
 
       callback({ user });
@@ -120,7 +119,14 @@ const getIo = function (server) {
       updateRoom(room.id, { musics, step: 0, totalStep: musics.length, users });
       const game = createGame(room.id, musics, users);
 
-      io.to(user.room).emit('START_GAME', ({ room: room.id, game }));
+      io.to(user.room).emit('START_GAME', ({ room, game, musics }));
+    });
+
+    socket.on('ASK_NEW_GAME', (callback) => {
+      const user = getUser({ id: socket.id });
+      socket.broadcast.to(user.room).emit('NEW_GAME');
+
+      callback({ user });
     });
 
     socket.on('GET_ROOM', (callback) => {
@@ -135,7 +141,7 @@ const getIo = function (server) {
       callback({ newRoom: room });
     });
 
-    socket.on('ADD_SCORE', ({ score, step }) => {
+    socket.on('ADD_SCORE', ({ score, step }, callback) => {
       const user = getUser({ id: socket.id });
       const room = getRoom(user.room);
 
@@ -143,7 +149,6 @@ const getIo = function (server) {
       const usersLength = room.users.length;
 
       io.to(room.id).emit('UPDATE_SCORES', ({ game }));
-
       if (game.rounds[step].scores.length === usersLength) {
         const nextStep = step + 1;
 
@@ -153,6 +158,8 @@ const getIo = function (server) {
           isEndGame: nextStep === game.movies.length,
         }));
       }
+
+      callback({ game });
     });
 
     socket.on('GET_GAME', ({ roomId }, callback) => {

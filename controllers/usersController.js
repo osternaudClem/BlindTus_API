@@ -1,4 +1,3 @@
-const Bcrypt = require('bcryptjs');
 import crypto from 'crypto';
 import { UsersModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
@@ -6,9 +5,19 @@ import { errorMessages } from '../utils/errorUtils';
 import { comparePassword } from '../utils/password';
 import { sendMail } from '../utils/mailUtils';
 
-export async function getUsers() {
+export async function getUsers(usernames) {
   try {
-    const users = await UsersModel.find();
+    let users = [];
+    if (usernames !== undefined) {
+      users = await UsersModel.find({
+        'username': {
+          $in: usernames.split(',')
+        }
+      });
+    }
+    else {
+      users = await UsersModel.find();
+    }
     return users;
   } catch (error) {
     return error;
@@ -153,8 +162,6 @@ export async function login(email, password) {
       };
     }
 
-    // Don't send password to client
-    user.password = undefined;
     return user;
   } catch (error) {
     return error;

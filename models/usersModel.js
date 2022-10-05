@@ -20,6 +20,7 @@ const UsersSchema = new Schema({
   password: {
     type: 'string',
     required: true,
+    select: false,
   },
 
   confirmed: {
@@ -29,6 +30,7 @@ const UsersSchema = new Schema({
 
   token: {
     type: 'string',
+    select: false,
   },
 
   expired: {
