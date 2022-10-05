@@ -76,8 +76,10 @@ const getIo = function (server) {
     socket.on('CREATE_ROOM', ({ username, room, settings }, callback) => {
       const user = joinRoom(socket, username, room, true);
 
+
       addRoom({ id: room, creator: user.id, settings });
-      callback();
+
+      callback({ user });
     });
 
     socket.on('JOIN_ROOM', ({ username, room }, callback) => {
@@ -165,6 +167,7 @@ const getIo = function (server) {
 
 const joinRoom = function (socket, username, room, isCreator) {
   let user = getUser({ username });
+
   if (!user) {
     const newUser = addUser(
       { id: socket.id, username, room, isCreator });
