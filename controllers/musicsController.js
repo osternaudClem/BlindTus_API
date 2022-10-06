@@ -21,7 +21,7 @@ export async function getMusic(musicId) {
   }
 
   try {
-    const music = MusicsModel.findById(musicId).populate('category');
+    const music = MusicsModel.findById(musicId);
 
     return music;
   } catch (error) {
