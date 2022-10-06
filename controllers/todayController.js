@@ -35,6 +35,9 @@ export async function getMusic() {
   const start = new Date(startOfDay(new Date()).getTime() + 2 * 60 * 60 * 1000);
   const end = new Date(endOfDay(new Date()).getTime() + 2 * 60 * 60 * 1000);
 
+  console.log('>>> start', start);
+  console.log('>>> end', end);
+
   try {
     music = await TodayModel.findOne({
       created_at: {
