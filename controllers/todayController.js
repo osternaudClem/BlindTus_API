@@ -37,6 +37,8 @@ export async function getMusic() {
 
   console.log('>>> start', start);
   console.log('>>> end', end);
+
+  console.log('>>> time', new Date())
   
 
   try {
