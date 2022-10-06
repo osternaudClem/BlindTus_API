@@ -30,7 +30,7 @@ let io = null;
 const getIo = function (server) {
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000", "https://admin.socket.io", "http://blindtus.cl3tus.com"],
+      origin: ["http://localhost:3000", "https://admin.socket.io", "https://blindtus.cl3tus.com"],
       credentials: true,
     },
     path: '/ws'
