@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import boolParser from 'express-query-boolean';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import winston from 'winston';
@@ -30,6 +31,7 @@ mongoose.connect(`mongodb+srv://Cl3tus:YNpBR6Q67pGFaHvP@cluster0.ukxknfk.mongodb
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(boolParser());
 
 app.use(cors());
 

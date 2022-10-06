@@ -5,9 +5,9 @@ import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 const mdb = new MovieDb(config.themovieDB.key);
 
-export async function getMovies() {
+export async function getMovies(filter) {
   try {
-    return await MoviesModel.find();
+    return await MoviesModel.find(filter).populate('added_by');
   } catch (error) {
     return error;
   }
@@ -20,7 +20,7 @@ export async function getMovie(movieId) {
 
   try {
     const movie = await MoviesModel.findById(movieId).populate('musics');
-    
+
     if (!movie) {
       return errorMessages.movies.notFound;
     }
@@ -90,24 +90,25 @@ export async function findMovies(title) {
     const movies = await mdb.searchMovie({ query: title, language: 'fr-FR' });
     return movies;
   }
- catch (error) {
-   return error;
- }}
+  catch (error) {
+    return error;
+  }
+}
 
- export async function findMovieById(id) {
-   if (!id) {
-     return errorMessages.generals.missingId;
-   }
+export async function findMovieById(id) {
+  if (!id) {
+    return errorMessages.generals.missingId;
+  }
 
-   try {
-     const movie = await mdb.movieInfo({ id: id, language: 'fr-FR', append_to_response: 'credits' });
-     return movie;
-   } catch (error) {
-     return error;
-   }
- }
+  try {
+    const movie = await mdb.movieInfo({ id: id, language: 'fr-FR', append_to_response: 'credits' });
+    return movie;
+  } catch (error) {
+    return error;
+  }
+}
 
- export async function updateMovie(movieId, updatedAttributes) {
+export async function updateMovie(movieId, updatedAttributes) {
   if (!movieId) {
     return errorMessages.generals.missingId;
   }
@@ -131,13 +132,13 @@ export async function findMovies(title) {
   }
 }
 
- export async function addMusicById(movie_id, music_id) {
+export async function addMusicById(movie_id, music_id) {
   if (!movie_id) {
-    return ;
+    return;
   }
 
   if (!music_id) {
-    return ;
+    return;
   }
 
   try {
@@ -148,4 +149,4 @@ export async function findMovies(title) {
   } catch (error) {
     return error;
   }
- }
+}

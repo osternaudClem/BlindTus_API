@@ -53,11 +53,22 @@ const MoviesSchema = new Schema({
     type: 'array',
   },
 
+  verified: {
+    type: 'boolean',
+    default: true,
+  },
+
   // Associations
   musics: [{
     type: Schema.Types.ObjectId,
     ref: 'Musics',
   }],
+  
+  added_by: {
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+    default: '6329bcf462eb85395efa3320',
+  },
 },
   {
     timestamps: {
