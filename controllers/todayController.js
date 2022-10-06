@@ -32,14 +32,16 @@ export async function postMusic(music) {
 export async function getMusic() {
   let music = null;
 
-  const start = new Date(startOfDay(new Date()).getTime() + 24 * 60 * 60 * 1000);
-  const end = new Date(endOfDay(new Date()).getTime() + 24 * 60 * 60 * 1000);
+  const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
+  const start = new Date(startOfDay(new Date()).getTime() + (isDev ? 2 : 24) * 60 * 60 * 1000);
+  const end = new Date(endOfDay(new Date()).getTime() + (isDev ? 2 : 24) * 60 * 60 * 1000);
+  console.log('>>> isDev ?', (!process.env.NODE_ENV || process.env.NODE_ENV === 'development'));
   console.log('>>> start', start);
   console.log('>>> end', end);
 
   console.log('>>> time', new Date())
-  
+
 
   try {
     music = await TodayModel.findOne({
