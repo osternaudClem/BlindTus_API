@@ -34,8 +34,8 @@ export async function getHistory(historyId) {
 export async function getTodayUser(userId) {
   try {
     const today = await Today.getMusic();
-    
-    return HistoryTodayModel.findOne({ today: today._id, user: userId});
+
+    return await HistoryTodayModel.findOne({ today: today.music._id, user: userId });
   } catch (error) {
     return error;
   }

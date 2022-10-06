@@ -1,10 +1,7 @@
-import { startOfDay, endOfDay, formatRFC3339 } from 'date-fns';
-import mongoose from 'mongoose';
+import { startOfDay, endOfDay } from 'date-fns';
 import { TodayModel, MusicsModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
-import { errorMessages } from '../utils/errorUtils';
 import { shuffle } from '../utils/arrayUtils';
-// mongoose.set('debug', true);
 
 export async function getMusics() {
   try {
@@ -58,7 +55,9 @@ export async function getMusic() {
       const newMusic = createNewEntity({ music: shuffledMusics[0] }, TodayModel);
       music = await newMusic.save();
     }
-    return music;
+
+    const count = await TodayModel.count();
+    return { music, count };
   } catch (error) {
     return error;
   }
