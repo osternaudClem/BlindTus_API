@@ -32,8 +32,8 @@ export async function postMusic(music) {
 export async function getMusic() {
   let music = null;
 
-  const start = new Date(startOfDay(new Date()).getTime());
-  const end = new Date(endOfDay(new Date()).getTime());
+  const start = new Date(startOfDay(new Date()).getTime() + 24 * 60 * 60 * 1000);
+  const end = new Date(endOfDay(new Date()).getTime() + 24 * 60 * 60 * 1000);
 
   console.log('>>> start', start);
   console.log('>>> end', end);
