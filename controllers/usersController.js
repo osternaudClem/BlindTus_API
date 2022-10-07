@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { UsersModel } from '../models';
+import { UsersModel, HistoryTodayModel, HistoryModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 import { comparePassword } from '../utils/password';
@@ -13,12 +13,40 @@ export async function getUsers(usernames) {
         'username': {
           $in: usernames.split(',')
         }
-      });
+      })
     }
     else {
       users = await UsersModel.find();
     }
-    return users;
+
+    const userIds = users.map(user => user.id);
+    const history = await HistoryModel.find({ 'user': { $in: userIds } });
+    const historyToday = await HistoryTodayModel.find({ 'user': { $in: userIds } });
+    const updatedUser = [];
+
+    users.map(user => {
+      const u = JSON.parse(JSON.stringify(user));
+      const historyMerged = [];
+      const historyTodayMerged = [];
+
+      history.map(h => {
+        if (h.user.equals(user._id)) {
+          historyMerged.push(h);
+        }
+      });
+
+      historyToday.map(history => {
+        if (history.user.equals(user._id)) {
+          historyTodayMerged.push(history);
+        }
+      });
+
+      u.history = historyMerged;
+      u.historyToday = historyTodayMerged;
+      return updatedUser.push(u);
+    })
+
+    return updatedUser;
   } catch (error) {
     return error;
   }
@@ -144,21 +172,20 @@ export async function login(email, password) {
   try {
     const user = await UsersModel.findOne({
       email,
-    });
+    }).select('+password').select('+confirmed');
 
     if (!user) {
-      return errorMessages.users.notFound;
+      return { error: 'Utilisateur non trouvé'};
     }
 
     if (!user.confirmed) {
-      return { error: 'notConfirmed' };
+      return { error: 'L\'utilisateur n\'a pas validé sont compte' };
     }
 
     const isValidPass = await comparePassword(password, user.password);
-
     if (!isValidPass) {
       return {
-        error: 'wrongPassword', message: 'Wrong password'
+        error: 'Mot de passe incorect'
       };
     }
 
@@ -169,7 +196,7 @@ export async function login(email, password) {
 }
 
 export async function confirm(token) {
-  const user = await UsersModel.findOne({ token });
+  const user = await UsersModel.findOne({ token }).select('+token');
 
   if (!user) {
     return { messages: errorMessages.users.notFound, error: true };

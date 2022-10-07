@@ -47,16 +47,10 @@ const UsersSchema = new Schema({
     of: 'string',
   },
 
-  // Associations
-  today: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Today',
-  }],
-
-  historyToday: [{
-    type: Schema.Types.ObjectId,
-    ref: 'HistoryToday',
-  }],
+  isAdmin: {
+    type: 'boolean',
+    default: false,
+  },
 },
 {
   timestamps: {
