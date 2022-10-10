@@ -19,6 +19,10 @@ const GamesSchema = new Schema({
     unique: true,
   },
 
+  proposals: {
+    type: 'array',
+  },
+
   // Associations
   musics: [{
     type: Schema.Types.ObjectId,
