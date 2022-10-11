@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { themovieDB } from '../config';
 const Schema = mongoose.Schema;
 
 const MoviesSchema = new Schema({

@@ -1,14 +1,11 @@
 import express from 'express';
 import nodemailer from 'nodemailer';
 import hbs from 'nodemailer-express-handlebars';
-import sendinblueTransport from 'nodemailer-sendinblue-transport';
 import path from 'path';
-import { config } from '../config';
 const viewPath = path.resolve(__dirname, '../templates/views');
 const partialsPath = path.resolve(__dirname, '../templates/partials');
 
 export function sendMail(subject, context) {
-  const sendinblue = config.sendinblue;
   const mailData = {
     from: 'contact@blindtus.com',  // sender address
     to: context.email,   // list of receivers
