@@ -1,9 +1,10 @@
 import { MovieDb } from 'moviedb-promise';
-import { config } from '../config.js';
 import { MoviesModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
-const mdb = new MovieDb(config.themovieDB.key);
+import dotenv from 'dotenv';
+dotenv.config();
+const mdb = new MovieDb(process.env.THEMOVIEDB_KEY);
 
 export async function getMovies(filter) {
   try {

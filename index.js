@@ -8,6 +8,7 @@ import expressWinston from 'express-winston';
 import colors from 'colors';
 import http from 'http';
 import { instrument } from '@socket.io/admin-ui';
+import dotenv from 'dotenv';
 import socketio from './socket/Socket';
 const errorController = require('./controllers/errorController');
 
@@ -25,6 +26,9 @@ import {
 const PORT = process.env.PORT || 4000;
 const app = express();
 const server = http.createServer(app);
+
+// get config vars
+dotenv.config();
 
 // connect to Mongo when the app initializes
 mongoose.connect(`mongodb+srv://Cl3tus:YNpBR6Q67pGFaHvP@cluster0.ukxknfk.mongodb.net/BlindTus?retryWrites=true&w=majority`);
@@ -47,21 +51,34 @@ app.use(expressWinston.logger({
   colorize: true,
 }));
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token === null || token === undefined) return res.sendStatus(401);
+
+  if (token !== process.env.TOKEN_SECRET) {
+    return res.status(403).send("Token invalid !");
+  }
+
+  next();
+}
+
 // routes
 app.use('/api/doc', express.static(__dirname + '/doc'));
-app.use('/api/categories', CategoriesRoute);
-app.use('/api/musics', MusicsRoute);
-app.use('/api/musicsday', TodayRoute);
-app.use('/api/movies', MoviesRoute);
-app.use('/api/users', UsersRoute);
-app.use('/api/games', GamesRoute);
-app.use('/api/history', HistoryRoute);
-app.use('/api/historytoday', HistoryTodayRoute);
+app.use('/api/categories',authenticateToken, CategoriesRoute);
+app.use('/api/musics', authenticateToken, MusicsRoute);
+app.use('/api/musicsday', authenticateToken, TodayRoute);
+app.use('/api/movies', authenticateToken, MoviesRoute);
+app.use('/api/users', authenticateToken, UsersRoute);
+app.use('/api/games', authenticateToken, GamesRoute);
+app.use('/api/history', authenticateToken, HistoryRoute);
+app.use('/api/historytoday', authenticateToken, HistoryTodayRoute);
 app.use(errorController);
 
 // Websocket
 const io = socketio.getIo(server);
-instrument(io, { auth: false});
+instrument(io, { auth: false });
 
 
 server.listen(PORT, () => {
