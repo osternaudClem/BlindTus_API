@@ -165,11 +165,12 @@ export async function addCasts() {
 
       if (!movie.casts || !movie.casts.length) {
         movie.casts = [];
+        
         movieFound.credits.cast.slice(0, 4).map(actor => {
           movie.casts.push(actor.name);
         });
+
         await movie.save();
-        console.log('>>> movie:', index, movieFound.title)
       }
     });
 

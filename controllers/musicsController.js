@@ -1,15 +1,35 @@
-import { MusicsModel } from '../models';
+import { MusicsModel, MoviesModel } from '../models';
 import * as Categories from './categoriesController';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 import { shuffle } from '../utils/arrayUtils';
 
-export async function getMusics(limit = 10) {
+export async function getMusics(limit = 10, withProposals = false) {
   try {
     const musics = await MusicsModel.find().populate('movie');
-    const shuffleMusics = shuffle(musics);
+    const shuffleMusics = shuffle(musics).slice(0, limit);
 
-    return shuffleMusics.slice(0, limit);
+    let returnedMusics = [];
+
+    if (withProposals) {
+      const movies = await MoviesModel.find();
+
+      shuffleMusics.map((music, index) => {
+        const moviesGenre = music.movie.genres[0];
+        const moviesSameGenre = movies.filter(mo => {
+          if (mo.title_fr === music.movie.title_fr) {
+            return;
+          }
+          return mo.genres.find(g => g === moviesGenre);
+        });
+
+        const musicProposals = shuffle(moviesSameGenre).slice(0, 10).map(({ title_fr }) => title_fr);
+        music.proposals = musicProposals;
+        returnedMusics.push(music);
+      });
+    }
+
+    return returnedMusics.length > 0 ? returnedMusics : shuffleMusics;
   } catch (error) {
     return error;
   }

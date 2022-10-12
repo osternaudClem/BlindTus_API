@@ -21,6 +21,7 @@ import {
   deleteGame,
   getGame,
   getAllGames,
+  removeGameUser,
 } from './Game';
 
 import * as Musics from '../controllers/musicsController';
@@ -43,7 +44,7 @@ const getIo = function (server) {
 
     socket.on('disconnect', reason => {
       const user = getUser({ id: socket.id });
-
+      
       if (user && user.isCreator) {
         const users = getUsersInRoom(user.room);
 
@@ -63,12 +64,14 @@ const getIo = function (server) {
         if (!io.sockets.adapter.rooms.has(user.room)) {
           deleteGame({ roomId: user.room });
         }
-
-        io.to(user.room).emit('PLAYER_DISCONNECTED', user.username);
       }
 
-      console.log('>>> reason', reason);
-    })
+      if (user && user.room) {
+        const game = removeGameUser({ roomId: user.room, userId: user.id });
+        io.to(user.room).emit('PLAYER_DISCONNECTED', user.username, game, reason);
+      }
+    });
+
     socket.on('FORCE_DISCONNECT', () => {
       socket.disconnect();
     });
@@ -115,7 +118,7 @@ const getIo = function (server) {
       const user = getUser({ id: socket.id });
       const users = getUsersInRoom(user.room);
       let room = getRoom(user.room);
-      const musics = await Musics.getMusics(room.settings.totalMusics);
+      const musics = await Musics.getMusics(room.settings.totalMusics, true);
       updateRoom(room.id, { musics, step: 0, totalStep: musics.length, users });
       const game = createGame(room.id, musics, users);
 
@@ -173,18 +176,13 @@ const getIo = function (server) {
 }
 
 const joinRoom = function (socket, username, room, isCreator) {
-  let user = getUser({ username });
+  const newUser = addUser(
+    { id: socket.id, username, room, isCreator });
 
-  if (!user) {
-    const newUser = addUser(
-      { id: socket.id, username, room, isCreator });
+  if (newUser.error) return callback(newUser.error);
 
-    if (newUser.error) return callback(newUser.error);
-    user = newUser.user;
-  }
-  else {
-    updateUser(username, { id: socket.id, room });
-  }
+  const user = newUser.user;
+
 
   // Emit will send message to the user
   // who had joined

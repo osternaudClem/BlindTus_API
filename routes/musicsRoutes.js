@@ -13,8 +13,8 @@ const router = express.Router();
  *
  */
 router.get('/', async (req, res) => {
-  const { limit = 10 } = req.query;
-  return res.json(await Musics.getMusics(limit));
+  const { limit = 10, withProposals = false } = req.query;
+  return res.json(await Musics.getMusics(limit, withProposals));
 });
 
 /**

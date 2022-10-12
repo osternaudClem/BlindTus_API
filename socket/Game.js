@@ -50,6 +50,17 @@ const deleteGame = ({ gameId, roomId }) => {
   }
 }
 
+const removeGameUser = ({ gameId, roomId, userId }) => {
+  const index = games.findIndex(g => g.id === gameId || g.room === roomId);
+  if (index !== -1) {
+    const userIndex = games[index].users.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+       games[index].users.splice(userIndex, 1);
+      return games[index];
+    }
+  }
+}
+
 const getGame = (roomId) => {
   return games.find(g => g.room === roomId);
 }
@@ -64,4 +75,5 @@ module.exports = {
   deleteGame,
   getGame,
   getAllGames,
+  removeGameUser,
 };
