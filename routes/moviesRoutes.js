@@ -101,4 +101,8 @@ router.patch('/:movie_id', async (req, res) => {
   return res.json(await Movies.addMusicById(movie_id, music_id));
 });
 
+router.post('/update-movies', async (req, res) => {
+  return res.json(await Movies.addCasts());
+});
+
 module.exports = router;

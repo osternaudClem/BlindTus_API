@@ -20,6 +20,10 @@ const MoviesSchema = new Schema({
     type: 'array',
   },
 
+  casts: {
+    type: 'array',
+  },
+
   backdrop_path: {
     type: 'string',
   },

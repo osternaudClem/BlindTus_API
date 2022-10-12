@@ -61,6 +61,11 @@ export async function saveMovie(movie, music) {
     movie.directors.push(director.name);
   });
 
+  movie.casts = [];
+  movie.credits.cast.slice(0, 4).map(actor => {
+    movie.casts.push(actor.name);
+  });
+
   // Get genres
   const genres = [];
   movie.genres.map(genre => {
@@ -147,6 +152,28 @@ export async function addMusicById(movie_id, music_id) {
     movie.musics.push(music_id);
 
     return movie.save();
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function addCasts() {
+  try {
+    const movies = await MoviesModel.find();
+    movies.map(async (movie, index) => {
+      const movieFound = await findMovieById(movie.imdb_id);
+
+      if (!movie.casts || !movie.casts.length) {
+        movie.casts = [];
+        movieFound.credits.cast.slice(0, 4).map(actor => {
+          movie.casts.push(actor.name);
+        });
+        await movie.save();
+        console.log('>>> movie:', index, movieFound.title)
+      }
+    });
+
+    return 'ok'
   } catch (error) {
     return error;
   }
