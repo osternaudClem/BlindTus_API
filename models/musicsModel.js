@@ -20,6 +20,10 @@ const MusicsSchema = new Schema({
     type: 'string',
   },
 
+  proposals: {
+    type: 'array',
+  },
+
   // Associations
   category: [{
     type: Schema.Types.ObjectId,
