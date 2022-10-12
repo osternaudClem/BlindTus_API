@@ -144,6 +144,11 @@ const getIo = function (server) {
       callback({ newRoom: room });
     });
 
+    socket.on('START_MUSIC', () => {
+      const user = getUser({ id: socket.id });
+      io.to(user.room).emit('START_MUSIC');
+    });
+
     socket.on('ADD_SCORE', ({ score, step }, callback) => {
       const user = getUser({ id: socket.id });
       const room = getRoom(user.room);

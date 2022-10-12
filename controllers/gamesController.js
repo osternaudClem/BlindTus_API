@@ -28,7 +28,7 @@ export async function getGame(gameId) {
           path: 'movie',
         },
       })
-      .populate('created_by');
+        .populate('created_by');
 
     } else {
       game = await GamesModel.findOne({ code: gameId }).populate({
@@ -37,7 +37,7 @@ export async function getGame(gameId) {
           path: 'movie',
         },
       })
-      .populate('created_by');
+        .populate('created_by');
     }
 
     if (!game.code) {
@@ -66,19 +66,21 @@ export async function generateNewGame(game) {
 
   const movies = await MoviesModel.find();
   const proposals = [];
-    
-  game.musics.map(music => {
-    const moviesGenre = music.movie.genres[0];
-    const moviesSameGenre = movies.filter(mo => {
-      if (mo.title_fr === music.movie.title_fr) {
-        return;
-      }
-      return mo.genres.find(g => g === moviesGenre);
-    });
+  
+  if (game.musics) {
+    game.musics.map(music => {
+      const moviesGenre = music.movie.genres[0];
+      const moviesSameGenre = movies.filter(mo => {
+        if (mo.title_fr === music.movie.title_fr) {
+          return;
+        }
+        return mo.genres.find(g => g === moviesGenre);
+      });
 
-    const musicProposals = shuffle(moviesSameGenre).slice(0, 10).map(({ title_fr }) => title_fr);
-    proposals.push(musicProposals);
-  });
+      const musicProposals = shuffle(moviesSameGenre).slice(0, 10).map(({ title_fr }) => title_fr);
+      proposals.push(musicProposals);
+    });
+  }
 
   game.proposals = proposals;
 
