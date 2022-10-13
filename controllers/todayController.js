@@ -34,8 +34,8 @@ export async function getMusic() {
 
   const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
-  const start = new Date(startOfDay(new Date()).getTime());
-  const end = new Date(endOfDay(new Date()).getTime());
+  const start = new Date(startOfDay(new Date()).getTime() + 2 * 60 * 60 * 1000);
+  const end = new Date(endOfDay(new Date()).getTime() + 2 * 60 * 60 * 1000);
 
   console.log('>>> start', start);
   console.log('>>> end', end);
