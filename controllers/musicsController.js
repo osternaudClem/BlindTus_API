@@ -15,8 +15,6 @@ export async function getMusics(limit = 10, withProposals = false, noShuffle = f
     const musics = await MusicsModel.find().populate('movie');
     let shuffleMusics = musics;
 
-    console.log('>>> noShuffle', noShuffle)
-
     if (!noShuffle) {
       shuffleMusics = shuffle(musics).slice(0, limit);
     }
@@ -176,7 +174,11 @@ async function stall(stallTime = 3000) {
 }
 
 export async function extractMp3(limit = 50) {
-  const output_dir = path.join(path.resolve('./') + '/datas/audio');
+  const output_dir = isDev
+    ? path.join(path.resolve('./') + '/datas/audio')
+    : path.join(path.resolve('/home/debian/www/blindtus/api/datas/audio') + '/datas/test');
+
+  console.log('>>> output_dir', output_dir)
 
   try {
     const musics = await MusicsModel.find();
@@ -191,7 +193,6 @@ export async function extractMp3(limit = 50) {
       const stream = ytdl(id, {
         quality: formats[0].itag,
       });
-
 
       ffmpeg(stream)
         .audioBitrate(formats[0].audioBitrate)
@@ -232,7 +233,13 @@ export async function extractSingleMp3(musicId) {
 }
 
 async function saveMp3(music) {
-  const output_dir = path.join(path.resolve('./') + '/datas/test');
+  const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+
+  const output_dir = isDev
+    ? path.join(path.resolve('./') + '/datas/audio')
+    : path.join(path.resolve('/home/debian/www/blindtus/api/datas/audio') + '/datas/test');
+
+  console.log('>>> output_dir', output_dir)
   const { id, timecode } = youtube_parser(music.video);
   const audio_name = slug(`${music.author}-${music.title}-${id}`);
   const start = Date.now();
