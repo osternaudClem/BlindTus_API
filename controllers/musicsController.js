@@ -212,7 +212,7 @@ export async function extractMp3(limit = 50) {
           });
         });
 
-      await stall(20);
+      await stall(100);
     }
   } catch (error) {
     console.log('>>> error', error);
