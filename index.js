@@ -64,6 +64,8 @@ function authenticateToken(req, res, next) {
   next();
 }
 
+app.use(express.static('datas'));
+
 // routes
 app.use('/api/doc', express.static(__dirname + '/doc'));
 app.use('/api/categories',authenticateToken, CategoriesRoute);

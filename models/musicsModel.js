@@ -17,6 +17,11 @@ const MusicsSchema = new Schema({
   },
 
   timecode: {
+    type: 'number',
+    default: 0,
+  },
+
+  audio_name: {
     type: 'string',
   },
 

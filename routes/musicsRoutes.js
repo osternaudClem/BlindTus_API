@@ -13,9 +13,19 @@ const router = express.Router();
  *
  */
 router.get('/', async (req, res) => {
-  const { limit = 10, withProposals = false } = req.query;
-  return res.json(await Musics.getMusics(limit, withProposals));
+  const { limit = 10, withProposals = false, noShuffle = false } = req.query;
+  return res.json(await Musics.getMusics(limit, withProposals, noShuffle));
 });
+
+router.get('/extract/:musicId', async (req, res) => {
+  const { musicId } = req.params;
+  return res.json(await Musics.extractSingleMp3(musicId));
+});
+
+router.get('/extract', async (req, res) => {
+  const {limit } = req.query;
+  return res.json(await Musics.extractMp3(limit));
+})
 
 /**
  * @api {get} /api/musics/:id Get single music
@@ -30,8 +40,9 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
+  const {withProposals = false } = req.query;
 
-  return res.json(await Musics.getMusic(id));
+  return res.json(await Musics.getMusic(id, withProposals));
 });
 
 /**
@@ -46,13 +57,13 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const { music } = req.body;
 
-  try {    
+  try {
     const savedMusic = await Musics.postMusic(music);
     await Movies.addMusicById(music.movie, savedMusic._id);
     return res.json(savedMusic);
   } catch (error) {
     return res.json(error);
-  } 
+  }
 });
 
 /**
