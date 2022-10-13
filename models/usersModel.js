@@ -47,6 +47,17 @@ const UsersSchema = new Schema({
     of: 'string',
   },
 
+  tokenNewPassword: {
+    type: 'string',
+    default: null,
+    select: false,
+  },
+
+  expiredNewPassword: {
+    type: 'number',
+    default: null,
+  },
+
   isAdmin: {
     type: 'boolean',
     default: false,

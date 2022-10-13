@@ -5,12 +5,12 @@ import path from 'path';
 const viewPath = path.resolve(__dirname, '../templates/views');
 const partialsPath = path.resolve(__dirname, '../templates/partials');
 
-export function sendMail(subject, context) {
+export function sendMail(subject, context, template = 'confirm') {
   const mailData = {
     from: 'contact@blindtus.com',  // sender address
     to: context.email,   // list of receivers
     subject,
-    template: 'confirm',
+    template,
     context,
   };
 
@@ -45,7 +45,7 @@ export function sendMail(subject, context) {
   });
 }
 
-export function sendTestEmail(subject, context) {
+export function sendTestEmail(subject, context, template = 'confirm') {
   const mailData = {
     from: 'youremail@gmail.com',  // sender address
     to: context.email,   // list of receivers

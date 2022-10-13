@@ -167,14 +167,14 @@ router.patch(
  *
  */
 router.patch('/:id', async (req, res, next) => {
-    try {
-      const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-      return res.json(await Users.patchUser(id, req.body));
-    } catch (error) {
-      next(error);
-    }
-  });
+    return res.json(await Users.patchUser(id, req.body));
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * @api {delete} /api/users/:id Delete an user
@@ -190,6 +190,18 @@ router.patch('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   return res.json(await Users.deleteUser(id));
+});
+
+router.get('/ask-new-password/:email', async (req, res) => {
+  const { email } = req.params;
+
+  return res.json(await Users.askNewPassword(email));
+});
+
+router.post('/save-new-password', async (req, res) => {
+  const { token, password } = req.body;
+
+  return res.json(await Users.saveNewPassword(token, password));
 });
 
 module.exports = router;
