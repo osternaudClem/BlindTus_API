@@ -1,4 +1,4 @@
-import { startOfDay, endOfDay, addHours } from 'date-fns';
+import { startOfDay, endOfDay } from 'date-fns';
 import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import { TodayModel, MusicsModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
@@ -30,16 +30,30 @@ export async function postMusic(music) {
   }
 }
 
+
+const calcZonedDate = (date, tz, fn, options = null) => {
+  const inputZoned = utcToZonedTime(date, tz);
+  const fnZoned = (options) ? fn(inputZoned, options) : fn(inputZoned);
+  return zonedTimeToUtc(fnZoned, tz);
+}
+
+const getZonedStartOfDay = (date, timeZone) => {
+  return calcZonedDate(date, timeZone, startOfDay);
+}
+
+const getZonedEndOfDay = (date, timeZone) => {
+  return calcZonedDate(date, timeZone, endOfDay);
+}
+
 export async function getMusic() {
   let music = null;
 
-  const start = new Date(startOfDay(new Date()).getTime());
-  const end = new Date(endOfDay(new Date()).getTime());
+
+  const start = getZonedStartOfDay(new Date(), 'Europe/Paris');
+  const end = getZonedEndOfDay(new Date(), 'Europe/Paris');
 
   console.log('>>> start', start);
   console.log('>>> end', end);
-
-  console.log('>>> today', new Date())
 
   try {
     music = await TodayModel.findOne({
