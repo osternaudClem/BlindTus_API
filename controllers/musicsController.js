@@ -178,8 +178,6 @@ export async function extractMp3(limit = 50) {
     ? path.join(path.resolve('./') + '/datas/audio')
     : path.join(path.resolve('/home/debian/www/blindtus/api/datas/audio'));
 
-  console.log('>>> output_dir', output_dir)
-
   try {
     const musics = await MusicsModel.find();
     for (const music of musics.slice(100, limit)) {
@@ -239,7 +237,6 @@ async function saveMp3(music) {
     ? path.join(path.resolve('./') + '/datas/audio')
     : path.join(path.resolve('/home/debian/www/blindtus/api/datas/audio'));
 
-  console.log('>>> output_dir', output_dir)
   const { id, timecode } = youtube_parser(music.video);
   const audio_name = slug(`${music.author}-${music.title}-${id}`);
   const start = Date.now();
