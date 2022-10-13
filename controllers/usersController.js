@@ -175,7 +175,7 @@ export async function login(email, password) {
     }).select('+password').select('+confirmed');
 
     if (!user) {
-      return { error: 'Utilisateur non trouvé'};
+      return { error: 'Utilisateur non trouvé' };
     }
 
     if (!user.confirmed) {
@@ -207,11 +207,76 @@ export async function confirm(token) {
 
   if ((Date.now() - user.expires) > expiresIn) {
     await user.remove();
-    return res.json('Le lien de validation a expiré ! Le compte a été supprimé !');
+    return { error: true, messages: 'Le lien de validation a expiré ! Le compte a été supprimé !' };
   }
 
   user.confirmed = true;
   await user.save();
 
   return user;
+}
+
+export async function askNewPassword(email) {
+  try {
+    const user = await UsersModel.findOne({ email });
+
+    if (!user) {
+      return { messages: errorMessages.users.notFound, error: true };
+    }
+
+    const token = crypto.createHash('md5').update(Math.random().toString().substring(2)).digest('hex');
+
+    const updatedUser = await patchUser(user._id, {
+      tokenNewPassword: token,
+      expiredNewPassword: new Date(),
+    });
+
+    sendMail('Réinitialisation de votre mot de passe',
+      {
+        email: user.email,
+        username: user.username,
+        token: token,
+      },
+      'newpassword');
+
+    updatedUser.save();
+
+    return user;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function saveNewPassword(token, password) {
+  try {
+    const user = await UsersModel.findOne({ tokenNewPassword: token });
+
+    if (!user) {
+      return { messages: errorMessages.users.notFound, error: true };
+    }
+
+    // 2 day expiration date
+    const expiresIn = 1000 * 60 * 60 * 48;
+
+    if ((Date.now() - user.expiredNewPassword) > expiresIn) {
+      console.log('>>> expired')
+      await patchUser(user._id, {
+        tokenNewPassword: null,
+        expiredNewPassword: null,
+      });
+
+      return { error: true, messages: '48h se sont écoulées depuis la demande. Veuillez en faire une nouvelle' };
+    }
+
+    const updatedUser = await patchUser(user._id, {
+      tokenNewPassword: null,
+      expiredNewPassword: null,
+      password,
+    });
+
+    return updatedUser;
+
+  } catch (error) {
+    return error;
+  }
 }
