@@ -176,7 +176,7 @@ async function stall(stallTime = 3000) {
 export async function extractMp3(limit = 50) {
   const output_dir = isDev
     ? path.join(path.resolve('./') + '/datas/audio')
-    : path.join(path.resolve('/home/debian/www/blindtus/api/datas/audio') + '/datas/test');
+    : path.join(path.resolve('/home/debian/www/blindtus/api/datas/audio'));
 
   console.log('>>> output_dir', output_dir)
 
@@ -237,7 +237,7 @@ async function saveMp3(music) {
 
   const output_dir = isDev
     ? path.join(path.resolve('./') + '/datas/audio')
-    : path.join(path.resolve('/home/debian/www/blindtus/api/datas/audio') + '/datas/test');
+    : path.join(path.resolve('/home/debian/www/blindtus/api/datas/audio'));
 
   console.log('>>> output_dir', output_dir)
   const { id, timecode } = youtube_parser(music.video);
