@@ -1,4 +1,5 @@
-import { startOfDay, endOfDay } from 'date-fns';
+import { startOfDay, endOfDay, addHours } from 'date-fns';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import { TodayModel, MusicsModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { shuffle } from '../utils/arrayUtils';
@@ -32,22 +33,8 @@ export async function postMusic(music) {
 export async function getMusic() {
   let music = null;
 
-  const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
-
-  const start1 = new Date(startOfDay(new Date()).getTime() + 2 * 60 * 60 * 1000);
-  const end1 = new Date(endOfDay(new Date()).getTime() + 2 * 60 * 60 * 1000);
-
   const start = new Date(startOfDay(new Date()).getTime());
   const end = new Date(endOfDay(new Date()).getTime());
-
-  console.log('>>> start 1', start);
-  console.log('>>> end 2', end);
-
-
-  console.log('>>> time', new Date());
-
-  console.log('>>> start', start);
-  console.log('>>> end', end);
 
   try {
     music = await TodayModel.findOne({

@@ -18,16 +18,7 @@ const TodaySchema = new Schema({
       createdAt: 'created_at',
       updatedAt: 'updated_at',
     }
-  });
-
-TodaySchema.pre('save', function(next) {
-  const date = new Date();
-  const dateParis = new Date(date.getTime() + 2 * 60 * 60 * 1000);
-
-  this.created_at = dateParis;
-  this.updated_at = dateParis;
-  
-  next();
-});
+  }
+);
 
 module.exports = mongoose.model('Today', TodaySchema);
