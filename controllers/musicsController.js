@@ -243,11 +243,13 @@ async function saveMp3(music) {
   const { id, timecode } = youtube_parser(music.video);
   const audio_name = slug(`${music.author}-${music.title}-${id}`);
   const start = Date.now();
-  const stream = ytdl(id, {
-    quality: '160' || '135',
-  });
 
   const info = await ytdl.getInfo(music.video);
+  const formats = info.formats.filter(f => f.container === 'mp4' && f.hasAudio);
+
+  const stream = ytdl(id, {
+    quality: formats[0].itag,
+  });
 
   return new Promise((resolve, reject) => {
     ffmpeg(stream)
