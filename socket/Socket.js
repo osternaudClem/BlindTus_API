@@ -44,7 +44,7 @@ const getIo = function (server) {
 
     socket.on('disconnect', reason => {
       const user = getUser({ id: socket.id });
-      
+
       if (user && user.isCreator) {
         const users = getUsersInRoom(user.room);
 
@@ -181,13 +181,18 @@ const getIo = function (server) {
 }
 
 const joinRoom = function (socket, username, room, isCreator) {
-  const newUser = addUser(
-    { id: socket.id, username, room, isCreator });
+  let user = getUser({ username });
 
-  if (newUser.error) return callback(newUser.error);
+  if (!user) {
+    const newUser = addUser(
+      { id: socket.id, username, room, isCreator });
 
-  const user = newUser.user;
-
+    if (newUser.error) return callback(newUser.error);
+    user = newUser.user;
+  }
+  else {
+    updateUser(username, { id: socket.id, room });
+  }
 
   // Emit will send message to the user
   // who had joined
