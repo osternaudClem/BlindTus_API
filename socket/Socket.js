@@ -96,6 +96,12 @@ const getIo = function (server) {
       };
     });
 
+    socket.on('LEAVE_ROOM', () => {
+      const user = getUser({ username });
+      const room = getRoom(roomCode);
+      removeGameUser({ roomId: room.id, userId: user.id });
+    });
+
     socket.on('SEND_CHAT', ({ username, room, message }) => {
       const user = getUser({ username });
       io.to(user.room).emit('MESSAGE', {
