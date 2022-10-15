@@ -160,14 +160,16 @@ const getIo = function (server) {
       io.to(user.room).emit('START_MUSIC');
     });
 
-    socket.on('ADD_SCORE', ({ score, step }, callback) => {
+    socket.on('ADD_SCORE', ({ score, step, answer }, callback) => {
       const user = getUser({ id: socket.id });
       const room = getRoom(user.room);
 
-      const game = addScore(room.id, user.id, user.username, score, step);
+      const game = addScore(room.id, user.id, user.username, score, answer, step);
       const usersLength = room.users.length;
 
       io.to(room.id).emit('UPDATE_SCORES', ({ game }));
+      console.log(game.rounds[step].scores)
+
       if (game.rounds[step].scores.length === usersLength) {
         const nextStep = step + 1;
 

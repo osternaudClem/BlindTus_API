@@ -21,7 +21,7 @@ const createGame = (roomId, musics, users) => {
   return games[gameIndex];
 }
 
-const addScore = (roomId, userId, username, score, step) => {
+const addScore = (roomId, userId, username, score, answer, step) => {
   const game = games.find(g => g.room === roomId);
 
   if (!game) {
@@ -36,7 +36,7 @@ const addScore = (roomId, userId, username, score, step) => {
 
   const stepIndex = game.rounds.findIndex(s => s.step === step);
 
-  game.rounds[stepIndex].scores.push({ user: userId, username, score });
+  game.rounds[stepIndex].scores.push({ user: userId, username, score, answer });
 
   return game;
 }
