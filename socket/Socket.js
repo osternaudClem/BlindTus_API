@@ -9,10 +9,8 @@ import {
 
 import {
   addRoom,
-  removeRoom,
   updateRoom,
   getRoom,
-  getAllRooms,
 } from './Room';
 
 import {
@@ -20,7 +18,6 @@ import {
   addScore,
   deleteGame,
   getGame,
-  getAllGames,
   removeGameUser,
 } from './Game';
 
@@ -117,18 +114,18 @@ const getIo = function (server) {
     socket.on('INIT_GAME', async () => {
       const user = getUser({ id: socket.id });
       const users = getUsersInRoom(user.room);
-      let room = getRoom(user.room);
+      const room = getRoom(user.room);
+      // Delete game if already exist
+      deleteGame({ roomId: room.id });
       const musics = await Musics.getMusics(room.settings.totalMusics, true);
-      updateRoom(room.id, { musics, step: 0, totalStep: musics.length, users });
+      updateRoom(room.id, { musics, step: 0, totalStep: musics.length, users, rounds: [] });
       const game = createGame(room.id, musics, users);
-
       io.to(user.room).emit('START_GAME', ({ room, game, musics }));
     });
 
     socket.on('ASK_NEW_GAME', (callback) => {
       const user = getUser({ id: socket.id });
       socket.broadcast.to(user.room).emit('NEW_GAME');
-
       callback({ user });
     });
 
@@ -144,7 +141,7 @@ const getIo = function (server) {
       callback({ newRoom: room });
     });
 
-    socket.on('START_MUSIC', () => {
+    socket.on('ASK_START_MUSIC', () => {
       const user = getUser({ id: socket.id });
       io.to(user.room).emit('START_MUSIC');
     });

@@ -55,7 +55,7 @@ const removeGameUser = ({ gameId, roomId, userId }) => {
   if (index !== -1) {
     const userIndex = games[index].users.findIndex(u => u.id === userId);
     if (userIndex !== -1) {
-       games[index].users.splice(userIndex, 1);
+      games[index].users.splice(userIndex, 1);
       return games[index];
     }
   }
