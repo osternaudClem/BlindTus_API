@@ -4,6 +4,7 @@ import {
   removeUser,
   updateUser,
   getUser,
+  getAllUsers,
   getUsersInRoom,
 } from './User';
 
@@ -73,6 +74,11 @@ const getIo = function (server) {
       socket.disconnect();
     });
 
+    socket.on('KICK_USER', ({ user }) => {
+      const userInfo = getUser({ username: user.username });
+      io.to(userInfo.id).emit('KICK');
+    });
+
     socket.on('CREATE_ROOM', ({ username, room, settings }, callback) => {
       const user = joinRoom(socket, username, room, true);
 
@@ -97,9 +103,11 @@ const getIo = function (server) {
     });
 
     socket.on('LEAVE_ROOM', () => {
-      const user = getUser({ username });
-      const room = getRoom(roomCode);
-      removeGameUser({ roomId: room.id, userId: user.id });
+      const user = getUser({ id: socket.id });
+      if (user) {
+        const room = getRoom(user.room);
+        removeGameUser({ roomId: room.id, userId: user.id });
+      }
     });
 
     socket.on('SEND_CHAT', ({ username, room, message }) => {

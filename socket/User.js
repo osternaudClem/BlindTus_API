@@ -44,6 +44,10 @@ const updateUser = (username, updated) => {
   users[index] = user;
 }
 
+const getAllUsers = ({ roomId }) => {
+  return users.filter(u => u.room = roomId);
+}
+
 const getUsersInRoom = (room) => users
   .filter((user) => user.room === room);
 
@@ -53,4 +57,5 @@ module.exports = {
   getUser,
   getUsersInRoom,
   updateUser,
+  getAllUsers,
 };

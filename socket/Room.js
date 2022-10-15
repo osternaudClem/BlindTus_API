@@ -36,23 +36,6 @@ const updateRoom = (id, updated) => {
   rooms[index] = room;
 }
 
-// const addScore = (id, user_id, score) => {
-//   const room = rooms.find((room) => room.id === id);
-//   const roomIndex = rooms.findIndex((room) => {
-//     return room.id === id;
-//   });
-
-//   const userIndex = room.users.findIndex((user) => {
-//     return user.id === user_id;
-//   });
-
-//   room.users[userIndex].scores.push(score);
-
-//   rooms[roomIndex] = room;
-
-//   return room;
-// }
-
 module.exports = {
   addRoom,
   updateRoom,
