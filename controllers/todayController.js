@@ -52,9 +52,6 @@ export async function getMusic() {
   const start = getZonedStartOfDay(new Date(), 'Europe/Paris');
   const end = getZonedEndOfDay(new Date(), 'Europe/Paris');
 
-  console.log('>>> start', start);
-  console.log('>>> end', end);
-
   try {
     music = await TodayModel.findOne({
       created_at: {

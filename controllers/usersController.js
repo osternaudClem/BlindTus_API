@@ -259,7 +259,6 @@ export async function saveNewPassword(token, password) {
     const expiresIn = 1000 * 60 * 60 * 48;
 
     if ((Date.now() - user.expiredNewPassword) > expiresIn) {
-      console.log('>>> expired')
       await patchUser(user._id, {
         tokenNewPassword: null,
         expiredNewPassword: null,

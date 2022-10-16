@@ -1,5 +1,6 @@
 import { v4 } from 'uuid';
 const games = [];
+const readyPlayers = {};
 
 const createGame = (roomId, musics, users) => {
   const id = v4();
@@ -17,6 +18,7 @@ const createGame = (roomId, musics, users) => {
   });
 
   const gameIndex = games.findIndex(g => g.room === roomId);
+  readyPlayers[roomId] = [];
 
   return games[gameIndex];
 }
@@ -69,6 +71,32 @@ const getAllGames = () => {
   return games;
 }
 
+/**
+ * 
+ * @param {string} roomId 
+ * @param {string} userId 
+ * @returns {string[]}
+ */
+const addReadyPlayer = (roomId, userId) => {
+  // Check if the user is not alrady added
+  const index = readyPlayers[roomId].findIndex(player => player === userId);
+
+  if (index === -1) {
+    readyPlayers[roomId].push(userId);
+  }
+
+  return readyPlayers[roomId];
+}
+
+/**
+ * 
+ * @param {string} roomid 
+ * @returns {Array}
+ */
+const cleanReadyPlayers = (roomid) => {
+  return readyPlayers[roomid] = [];
+}
+
 module.exports = {
   createGame,
   addScore,
@@ -76,4 +104,6 @@ module.exports = {
   getGame,
   getAllGames,
   removeGameUser,
+  addReadyPlayer,
+  cleanReadyPlayers,
 };

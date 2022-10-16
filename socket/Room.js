@@ -20,6 +20,11 @@ const getAllRooms = () => {
   return rooms;
 }
 
+/**
+ * 
+ * @param {string} id 
+ * @returns {{ id: string, settings: object, musics: array, step: number, totalStep: number, users: array}}
+ */
 const getRoom = (id) => rooms
   .find((room) => room.id === id);
 

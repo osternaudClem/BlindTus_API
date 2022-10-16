@@ -28,6 +28,11 @@ const removeUser = (id) => {
   }
 }
 
+/**
+ * 
+ * @param {object} { id: number | string, username: string } 
+ * @returns {{ id: string, username: string, room: string, isCreator: boolean, scores: array}}
+ */
 const getUser = ({ id, username }) => users
   .find((user) => user.id === id || user.username === username);
 

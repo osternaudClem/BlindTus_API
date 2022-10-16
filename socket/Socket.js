@@ -20,6 +20,8 @@ import {
   deleteGame,
   getGame,
   removeGameUser,
+  addReadyPlayer,
+  cleanReadyPlayers,
 } from './Game';
 
 import * as Musics from '../controllers/musicsController';
@@ -155,6 +157,13 @@ const getIo = function (server) {
       callback({ newRoom: room });
     });
 
+    socket.on('PLAYER_AUDIO_READY', () => {
+      const user = getUser({ id: socket.id });
+      const room = getRoom(user.room);
+      const players = addReadyPlayer(room.id, user.id);
+      io.to(room.id).emit('IS_EVERYBODY_READY', ({ isReadyToPlay: room.users.length === players.length, players }));
+    });
+
     socket.on('ASK_START_MUSIC', () => {
       const user = getUser({ id: socket.id });
       io.to(user.room).emit('START_MUSIC');
@@ -168,10 +177,10 @@ const getIo = function (server) {
       const usersLength = room.users.length;
 
       io.to(room.id).emit('UPDATE_SCORES', ({ game }));
-      console.log(game.rounds[step].scores)
 
       if (game.rounds[step].scores.length === usersLength) {
         const nextStep = step + 1;
+        cleanReadyPlayers(room.id);
 
         io.to(room.id).emit('NEXT_ROUND', ({
           step: nextStep,
