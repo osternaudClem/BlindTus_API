@@ -170,8 +170,10 @@ export async function login(email, password) {
   }
 
   try {
+    // Remove empty space that it may added by mistake
+    const cleanEmail = email.replaceAll(/\s/g,'');
     const user = await UsersModel.findOne({
-      email,
+      email: cleanEmail,
     }).select('+password').select('+confirmed');
 
     if (!user) {
