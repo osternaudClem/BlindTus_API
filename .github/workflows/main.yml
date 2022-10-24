@@ -13,7 +13,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USER }}
-          key: ${{ secrets.RSA_KEY }}
+          key: ${{ secrets.KEY }}
           command: |
             cd /home/debian/www/blindtus/api
             git pull origin main
