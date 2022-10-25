@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
  * @apiGroup Movies
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} movie
  *
  */
@@ -39,7 +39,7 @@ router.get('/:id', async (req, res) => {
  * @apiGroup Movies
  *
  * @apiParam (Params) {String} query
- * 
+ *
  * @apiSuccess {Object} movies
  *
  */
@@ -55,7 +55,7 @@ router.get('/find/:query', async (req, res) => {
  * @apiGroup Movies
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} movie
  *
  */
@@ -69,7 +69,7 @@ router.get('/find/id/:movie_id', async (req, res) => {
  * @apiVersion 0.0.1
  * @apiName PostMovie
  * @apiGroup Movies
- * 
+ *
  * @apiSuccess {Object} movie
  *
  */
@@ -86,7 +86,7 @@ router.post('/', async (req, res) => {
  * @apiGroup Movies
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} movie
  *
  */
@@ -99,6 +99,23 @@ router.patch('/:movie_id', async (req, res) => {
   }
 
   return res.json(await Movies.addMusicById(movie_id, music_id));
+});
+
+/**
+ * @api {delete} /api/movies/:id Delete single movie
+ * @apiVersion 0.0.1
+ * @apiName DeleteMovie
+ * @apiGroup Movies
+ *
+ * @apiParam (Params) {String} id
+ *
+ * @apiSuccess {Object} movie
+ *
+ */
+router.delete('/:movie_id', async (req, res) => {
+  const { movie_id } = req.params;
+
+  return res.json(await Movies.deleteMovie(movie_id));
 });
 
 router.post('/update-movies', async (req, res) => {

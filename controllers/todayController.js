@@ -30,24 +30,22 @@ export async function postMusic(music) {
   }
 }
 
-
 const calcZonedDate = (date, tz, fn, options = null) => {
   const inputZoned = utcToZonedTime(date, tz);
-  const fnZoned = (options) ? fn(inputZoned, options) : fn(inputZoned);
+  const fnZoned = options ? fn(inputZoned, options) : fn(inputZoned);
   return zonedTimeToUtc(fnZoned, tz);
-}
+};
 
 const getZonedStartOfDay = (date, timeZone) => {
   return calcZonedDate(date, timeZone, startOfDay);
-}
+};
 
 const getZonedEndOfDay = (date, timeZone) => {
   return calcZonedDate(date, timeZone, endOfDay);
-}
+};
 
 export async function getMusic() {
   let music = null;
-
 
   const start = getZonedStartOfDay(new Date(), 'Europe/Paris');
   const end = getZonedEndOfDay(new Date(), 'Europe/Paris');
@@ -55,9 +53,9 @@ export async function getMusic() {
   try {
     music = await TodayModel.findOne({
       created_at: {
-        '$gte': start,
-        '$lt': end,
-      }
+        $gte: start,
+        $lt: end,
+      },
     }).populate({
       path: 'music',
       populate: {
@@ -66,10 +64,13 @@ export async function getMusic() {
     });
 
     if (!music) {
-      const musics = await MusicsModel.find({ today: null });
+      const musics = await MusicsModel.find({ today: null, verified: true });
       const shuffledMusics = shuffle(musics);
 
-      const newMusic = createNewEntity({ music: shuffledMusics[0] }, TodayModel);
+      const newMusic = createNewEntity(
+        { music: shuffledMusics[0] },
+        TodayModel
+      );
       music = await newMusic.save();
     }
 

@@ -13,8 +13,15 @@ const router = express.Router();
  *
  */
 router.get('/', async (req, res) => {
-  const { limit = 10, withProposals = false, noShuffle = false } = req.query;
-  return res.json(await Musics.getMusics(limit, withProposals, noShuffle));
+  const {
+    limit = 10,
+    withProposals = false,
+    noShuffle = false,
+    addNotVerified = false,
+  } = req.query;
+  return res.json(
+    await Musics.getMusics(limit, withProposals, noShuffle, addNotVerified)
+  );
 });
 
 router.get('/extract/:musicId', async (req, res) => {
@@ -23,9 +30,9 @@ router.get('/extract/:musicId', async (req, res) => {
 });
 
 router.get('/extract', async (req, res) => {
-  const {limit } = req.query;
+  const { limit } = req.query;
   return res.json(await Musics.extractMp3(limit));
-})
+});
 
 /**
  * @api {get} /api/musics/:id Get single music
@@ -34,13 +41,13 @@ router.get('/extract', async (req, res) => {
  * @apiGroup Musics
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} music
  *
  */
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
-  const {withProposals = false } = req.query;
+  const { withProposals = false } = req.query;
 
   return res.json(await Musics.getMusic(id, withProposals));
 });
@@ -71,7 +78,7 @@ router.post('/', async (req, res) => {
  * @apiVersion 0.0.1
  * @apiName PatchMusics
  * @apiGroup Musics
- * 
+ *
  * @apiParam (Params) {String} id
  *
  * @apiSuccess {Object} music
@@ -89,7 +96,7 @@ router.patch('/:id', async (req, res) => {
  * @apiGroup Musics
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} music
  *
  */

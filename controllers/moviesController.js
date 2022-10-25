@@ -42,46 +42,58 @@ export async function getMovieByTitleAndDate(movie_title, movie_date) {
   }
 
   try {
-    return MoviesModel.findOne({ title: movie_title, release_date: movie_date });
+    return MoviesModel.findOne({
+      title: movie_title,
+      release_date: movie_date,
+    });
   } catch (error) {
     return error;
   }
 }
 
 export async function saveMovie(movie, music) {
+  let newMovie = movie;
+
+  if (!newMovie.credits) {
+    const dbMovie = await findMovieById(newMovie.id);
+    newMovie.credits = dbMovie.credits;
+    newMovie.genres = dbMovie.genres;
+  }
+
   if (music) {
-    movie.musics.push(music);
+    newMovie.musics.push(music);
   }
 
   // Get directors
-  const directors = movie.credits.crew.filter(person => person.job === 'Director');
-  movie.directors = [];
+  const directors = newMovie.credits.crew.filter(
+    (person) => person.job === 'Director'
+  );
+  newMovie.directors = [];
 
-  directors.map(director => {
-    movie.directors.push(director.name);
+  directors.map((director) => {
+    newMovie.directors.push(director.name);
   });
 
-  movie.casts = [];
-  movie.credits.cast.slice(0, 4).map(actor => {
-    movie.casts.push(actor.name);
+  newMovie.casts = [];
+  newMovie.credits.cast.slice(0, 4).map((actor) => {
+    newMovie.casts.push(actor.name);
   });
 
   // Get genres
   const genres = [];
-  movie.genres.map(genre => {
+  newMovie.genres.map((genre) => {
     genres.push(genre.name);
   });
 
-  movie.genres = genres;
+  newMovie.genres = genres;
 
-  movie.release_date = movie.release_date.slice(0, 4);
-  movie.title_fr = movie.title;
-  movie.title = movie.original_title;
+  newMovie.release_date = newMovie.release_date.slice(0, 4);
+  newMovie.title_fr = newMovie.title;
+  newMovie.title = newMovie.original_title;
 
-  const newMovie = createNewEntity(movie, MoviesModel);
-
+  const savedMovie = createNewEntity(newMovie, MoviesModel);
   try {
-    return await newMovie.save();
+    return await savedMovie.save();
   } catch (error) {
     return error;
   }
@@ -95,8 +107,7 @@ export async function findMovies(title) {
   try {
     const movies = await mdb.searchMovie({ query: title, language: 'fr-FR' });
     return movies;
-  }
-  catch (error) {
+  } catch (error) {
     return error;
   }
 }
@@ -107,7 +118,11 @@ export async function findMovieById(id) {
   }
 
   try {
-    const movie = await mdb.movieInfo({ id: id, language: 'fr-FR', append_to_response: 'credits' });
+    const movie = await mdb.movieInfo({
+      id: id,
+      language: 'fr-FR',
+      append_to_response: 'credits',
+    });
     return movie;
   } catch (error) {
     return error;
@@ -133,6 +148,26 @@ export async function updateMovie(movieId, updatedAttributes) {
     }
 
     return await movie.save();
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function deleteMovie(movie_id) {
+  if (!movie_id) {
+    return errorMessages.generals.missingId;
+  }
+
+  try {
+    const movie = await MoviesModel.findOneAndDelete({
+      _id: movie_id,
+    });
+
+    if (!movie) {
+      return errorMessages.movies.notFound;
+    }
+
+    return movie;
   } catch (error) {
     return error;
   }
@@ -165,8 +200,8 @@ export async function addCasts() {
 
       if (!movie.casts || !movie.casts.length) {
         movie.casts = [];
-        
-        movieFound.credits.cast.slice(0, 4).map(actor => {
+
+        movieFound.credits.cast.slice(0, 4).map((actor) => {
           movie.casts.push(actor.name);
         });
 
@@ -174,7 +209,7 @@ export async function addCasts() {
       }
     });
 
-    return 'ok'
+    return 'ok';
   } catch (error) {
     return error;
   }

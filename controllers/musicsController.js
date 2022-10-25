@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import readline from 'readline';
 import ytdl from 'ytdl-core';
@@ -10,15 +11,24 @@ import { errorMessages } from '../utils/errorUtils';
 import { shuffle } from '../utils/arrayUtils';
 import { youtube_parser } from '../utils/stringsUtils';
 
-export async function getMusics(limit = 10, withProposals = false, noShuffle = false) {
+export async function getMusics(
+  limit = 10,
+  withProposals = false,
+  noShuffle = false,
+  addNotVerified = false
+) {
+  let musics = [];
   try {
-    const musics = await MusicsModel.find().populate('movie');
+    if (!addNotVerified) {
+      musics = await MusicsModel.find({ verified: true }).populate('movie');
+    } else {
+      musics = await MusicsModel.find().populate('movie');
+    }
     let shuffleMusics = musics;
 
     if (!noShuffle) {
       shuffleMusics = shuffle(musics).slice(0, limit);
-    }
-    else {
+    } else {
       shuffleMusics = shuffleMusics.slice(0, limit);
     }
     let returnedMusics = [];
@@ -28,11 +38,11 @@ export async function getMusics(limit = 10, withProposals = false, noShuffle = f
 
       shuffleMusics.map((music, index) => {
         const moviesGenre = music.movie.genres[0];
-        const moviesSameGenre = movies.filter(mo => {
+        const moviesSameGenre = movies.filter((mo) => {
           if (mo.title_fr === music.movie.title_fr) {
             return;
           }
-          return mo.genres.find(g => g === moviesGenre);
+          return mo.genres.find((g) => g === moviesGenre);
         });
 
         const shuffledMovies = shuffle(movies);
@@ -42,7 +52,12 @@ export async function getMusics(limit = 10, withProposals = false, noShuffle = f
             let isOk = false;
             while (!isOk) {
               for (let y = 0; y < shuffledMovies.length; y++) {
-                if (shuffledMovies[y].title_fr !== music.movie.title_fr && !moviesSameGenre.some(m => m.title_fr === shuffledMovies[y].title_fr)) {
+                if (
+                  shuffledMovies[y].title_fr !== music.movie.title_fr &&
+                  !moviesSameGenre.some(
+                    (m) => m.title_fr === shuffledMovies[y].title_fr
+                  )
+                ) {
                   moviesSameGenre.push(shuffledMovies[y]);
                   isOk = true;
                   break;
@@ -52,7 +67,9 @@ export async function getMusics(limit = 10, withProposals = false, noShuffle = f
           }
         }
 
-        const musicProposals = shuffle(moviesSameGenre).slice(0, 10).map(({ title_fr }) => title_fr);
+        const musicProposals = shuffle(moviesSameGenre)
+          .slice(0, 10)
+          .map(({ title_fr }) => title_fr);
         music.proposals = musicProposals;
         returnedMusics.push(music);
       });
@@ -76,11 +93,11 @@ export async function getMusic(musicId, withProposals = false) {
     if (withProposals) {
       const movies = await MoviesModel.find();
       const moviesGenre = music.movie.genres[0];
-      const moviesSameGenre = movies.filter(mo => {
+      const moviesSameGenre = movies.filter((mo) => {
         if (mo.title_fr === music.movie.title_fr) {
           return;
         }
-        return mo.genres.find(g => g === moviesGenre);
+        return mo.genres.find((g) => g === moviesGenre);
       });
 
       const shuffledMovies = shuffle(movies);
@@ -90,7 +107,12 @@ export async function getMusic(musicId, withProposals = false) {
           let isOk = false;
           while (!isOk) {
             for (let y = 0; y < shuffledMovies.length; y++) {
-              if (shuffledMovies[y].title_fr !== music.movie.title_fr && !moviesSameGenre.some(m => m.title_fr === shuffledMovies[y].title_fr)) {
+              if (
+                shuffledMovies[y].title_fr !== music.movie.title_fr &&
+                !moviesSameGenre.some(
+                  (m) => m.title_fr === shuffledMovies[y].title_fr
+                )
+              ) {
                 moviesSameGenre.push(shuffledMovies[y]);
                 isOk = true;
                 break;
@@ -100,7 +122,9 @@ export async function getMusic(musicId, withProposals = false) {
         }
       }
 
-      const musicProposals = shuffle(moviesSameGenre).slice(0, 10).map(({ title_fr }) => title_fr);
+      const musicProposals = shuffle(moviesSameGenre)
+        .slice(0, 10)
+        .map(({ title_fr }) => title_fr);
       music.proposals = musicProposals;
       returnedMusic = music;
     }
@@ -126,6 +150,8 @@ export async function postMusic(music) {
 }
 
 export async function patchMusic(musicId, updatedAttributes) {
+  console.log('>>> musicId', musicId);
+  console.log('>>> updatedAttributes', updatedAttributes);
   if (!musicId) {
     return errorMessages.generals.missingId;
   }
@@ -170,7 +196,7 @@ export async function deleteMusic(musicId) {
 }
 
 async function stall(stallTime = 3000) {
-  await new Promise(resolve => setTimeout(resolve, stallTime));
+  await new Promise((resolve) => setTimeout(resolve, stallTime));
 }
 
 export async function extractMp3(limit = 50) {
@@ -187,32 +213,40 @@ export async function extractMp3(limit = 50) {
       const start = Date.now();
       const audio_name = slug(`${music.author}-${music.title}-${id}`);
 
-      const info = await ytdl.getInfo(music.video);
-      const formats = info.formats.filter(f => f.container === 'mp4' && f.hasAudio);
+      if (!fs.existsSync(`${output_dir}/${audio_name}.mp3`)) {
+        const info = await ytdl.getInfo(music.video);
+        const formats = info.formats.filter(
+          (f) => f.container === 'mp4' && f.hasAudio
+        );
 
-      const stream = ytdl(id, {
-        quality: formats[0].itag,
-      });
-
-      ffmpeg(stream)
-        .audioBitrate(formats[0].audioBitrate)
-        .save(`${output_dir}/${audio_name}.mp3`)
-        .on('progress', p => {
-          readline.cursorTo(process.stdout, 0);
-          process.stdout.write(`${p.targetSize}kb downloaded`);
-        })
-        .on('error', function (err, stdout, sterr) {
-          console.log('>>> error', err, music.author, music.title)
-        })
-        .on('end', async () => {
-          console.log(`\ndone, ${music.author} / ${music.title} --- ${(Date.now() - start) / 1000}s`);
-          await patchMusic(music._id, {
-            timecode,
-            audio_name,
-          });
+        const stream = ytdl(id, {
+          quality: formats[0].itag,
         });
 
-      await stall(100);
+        ffmpeg(stream)
+          .audioBitrate(formats[0].audioBitrate)
+          .save(`${output_dir}/${audio_name}.mp3`)
+          .on('progress', (p) => {
+            readline.cursorTo(process.stdout, 0);
+            process.stdout.write(`${p.targetSize}kb downloaded`);
+          })
+          .on('error', function (err, stdout, sterr) {
+            console.log('>>> error', err, music.author, music.title);
+          })
+          .on('end', async () => {
+            console.log(
+              `\ndone, ${music.author} / ${music.title} --- ${
+                (Date.now() - start) / 1000
+              }s`
+            );
+            await patchMusic(music._id, {
+              timecode,
+              audio_name,
+            });
+          });
+
+        await stall(100);
+      }
     }
   } catch (error) {
     console.log('>>> error', error);
@@ -225,7 +259,6 @@ export async function extractSingleMp3(musicId) {
     const isSaved = await saveMp3(music);
     console.log('>>> isSaved', isSaved);
     return isSaved;
-
   } catch (error) {
     console.log('>>> error', error);
     return error;
@@ -244,7 +277,9 @@ async function saveMp3(music) {
   const start = Date.now();
 
   const info = await ytdl.getInfo(music.video);
-  const formats = info.formats.filter(f => f.container === 'mp4' && f.hasAudio);
+  const formats = info.formats.filter(
+    (f) => f.container === 'mp4' && f.hasAudio
+  );
 
   const stream = ytdl(id, {
     quality: formats[0].itag,
@@ -254,16 +289,22 @@ async function saveMp3(music) {
     ffmpeg(stream)
       .audioBitrate(128)
       .save(`${output_dir}/${audio_name}.mp3`)
-      .on('progress', p => {
+      .on('progress', (p) => {
         readline.cursorTo(process.stdout, 0);
         process.stdout.write(`${p.targetSize}kb downloaded`);
       })
       .on('error', function (err, stdout, sterr) {
         // console.log('>>> err', err)
-        return reject(`error: ${music.author} - ${music.title} can't be saved !`);
+        return reject(
+          `error: ${music.author} - ${music.title} can't be saved !`
+        );
       })
       .on('end', async () => {
-        console.log(`\ndone, ${music.author} / ${music.title} --- ${(Date.now() - start) / 1000}s`);
+        console.log(
+          `\ndone, ${music.author} / ${music.title} --- ${
+            (Date.now() - start) / 1000
+          }s`
+        );
         await patchMusic(music._id, {
           timecode: timecode || 0,
           audio_name,
