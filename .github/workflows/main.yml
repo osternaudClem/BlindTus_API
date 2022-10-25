@@ -17,4 +17,5 @@ jobs:
           command: |
             cd /home/debian/www/blindtus/api
             git pull origin main
+            yarn
             pm2 reload all
