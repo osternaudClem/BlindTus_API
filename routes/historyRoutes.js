@@ -12,8 +12,9 @@ const router = express.Router();
  *
  */
 router.get('/', async (req, res) => {
-    const { user } = req.query;
-    return res.json(await History.getAllHistory(user));
+  const { user } = req.query;
+  console.log('>>> user', user);
+  return res.json(await History.getAllHistory(user));
 });
 
 /**
@@ -23,13 +24,13 @@ router.get('/', async (req, res) => {
  * @apiGroup History
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} history
  *
  */
 router.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    return res.json(await History.getHistory(id));
+  const { id } = req.params;
+  return res.json(await History.getHistory(id));
 });
 
 /**
@@ -42,7 +43,7 @@ router.get('/:id', async (req, res) => {
  *
  */
 router.post('/', async (req, res) => {
-    return res.json(await History.generateHistory(req.body));
+  return res.json(await History.generateHistory(req.body));
 });
 
 module.exports = router;

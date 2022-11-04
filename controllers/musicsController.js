@@ -24,13 +24,15 @@ export async function getMusics(
     } else {
       musics = await MusicsModel.find().populate('movie');
     }
+
     let shuffleMusics = musics;
 
     if (!noShuffle) {
-      shuffleMusics = shuffle(musics).slice(0, limit);
+      shuffleMusics = shuffle(musics).slice(0, limit <= 0 ? undefined : limit);
     } else {
-      shuffleMusics = shuffleMusics.slice(0, limit);
+      shuffleMusics = shuffleMusics.slice(0, limit <= 0 ? undefined : limit);
     }
+
     let returnedMusics = [];
 
     if (withProposals) {

@@ -20,7 +20,12 @@ router.get('/', async (req, res) => {
     addNotVerified = false,
   } = req.query;
   return res.json(
-    await Musics.getMusics(limit, withProposals, noShuffle, addNotVerified)
+    await Musics.getMusics(
+      parseInt(limit),
+      withProposals,
+      noShuffle,
+      addNotVerified
+    )
   );
 });
 

@@ -3,19 +3,20 @@ import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 
 export async function getAllHistory(userId) {
+  console.log('>>> userId', userId);
   let filter = {};
   try {
     if (userId) {
-      filter.user = userId
+      filter.user = userId;
     }
 
     const history = await HistoryModel.find(filter).populate({
       path: 'game',
       populate: {
         path: 'created_by',
-      }
+      },
     });
-    
+
     return history;
   } catch (error) {
     return error;
@@ -28,12 +29,14 @@ export async function getHistory(historyId) {
   }
 
   try {
-    const history = await HistoryModel.findById(historyId).populate('user').populate({
-      path: 'game',
-      populate: {
-        path: 'created_by',
-      }
-    });
+    const history = await HistoryModel.findById(historyId)
+      .populate('user')
+      .populate({
+        path: 'game',
+        populate: {
+          path: 'created_by',
+        },
+      });
 
     if (!history) {
       return errorMessages.history.notFound;
