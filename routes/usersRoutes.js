@@ -4,7 +4,7 @@ import * as Users from '../controllers/usersController';
 const router = express.Router();
 
 /**
- * @api {get} /api/users Get all users
+ * @api {get} /users Get all users
  * @apiVersion 0.0.1
  * @apiName GetUsers
  * @apiGroup Users
@@ -18,13 +18,13 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * @api {get} /api/users/:id Get single user
+ * @api {get} /users/:id Get single user
  * @apiVersion 0.0.1
  * @apiName GetUser
  * @apiGroup Users
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} user
  *
  */
@@ -34,7 +34,7 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
- * @api {post} /api/users Create new user
+ * @api {post} /users Create new user
  * @apiVersion 0.0.1
  * @apiName PostUsers
  * @apiGroup Users
@@ -45,7 +45,7 @@ router.get('/:id', async (req, res) => {
 router.post(
   '/',
 
-  body('username').custom(value => {
+  body('username').custom((value) => {
     if (!/^[a-z0-9]+$/i.test(value)) {
       throw new Error('The username can contain only letters and numbers.');
     }
@@ -54,13 +54,20 @@ router.post(
 
   body('email').isEmail().withMessage('Invalid e-mail'),
 
-  body('password').custom(value => {
+  body('password').custom((value) => {
     const uppercase = /[A-Z]+/;
     const lowercase = /[a-z]+/;
     const digit = /[0-9]+/;
 
-    if (!uppercase.test(value) || !lowercase.test(value) || !digit.test(value) || value.length < 8) {
-      throw new Error('The password must be at least 8 characters long and contain uppercase and lowercase letters and digits.');
+    if (
+      !uppercase.test(value) ||
+      !lowercase.test(value) ||
+      !digit.test(value) ||
+      value.length < 8
+    ) {
+      throw new Error(
+        'The password must be at least 8 characters long and contain uppercase and lowercase letters and digits.'
+      );
     }
 
     return true;
@@ -82,14 +89,14 @@ router.post(
 );
 
 /**
- * 
+ *
  * @api {get} /confirm/:token Confirm user account
  * @apiName ConfirmUser
  * @apiGroup Users
  * @apiVersion  0.0.1
- * 
+ *
  * @apiParam  {String} token
- * 
+ *
  * @apiSuccess {Object} user
  */
 router.post('/confirm', async (req, res) => {
@@ -99,14 +106,14 @@ router.post('/confirm', async (req, res) => {
 });
 
 /**
- * @api {post} /api/users Auth an user
+ * @api {post} /users Auth an user
  * @apiVersion 0.0.1
  * @apiName LoginUser
  * @apiGroup Users
  *
  * @apiParam {String} email
  * @apiParam {String} password
- * 
+ *
  * @apiSuccess {Object} user
  *
  */
@@ -116,11 +123,11 @@ router.post('/login', async (req, res) => {
 });
 
 /**
- * @api {patch} /api/users/changePassword/:id Update password
+ * @api {patch} /users/changePassword/:id Update password
  * @apiVersion 0.0.1
  * @apiName PatchUsersPassword
  * @apiGroup Users
- * 
+ *
  * @apiParam (Params) {String} id
  *
  * @apiSuccess {Object} user
@@ -128,13 +135,20 @@ router.post('/login', async (req, res) => {
  */
 router.patch(
   '/changePassword/:id',
-  body('newPassword').custom(value => {
+  body('newPassword').custom((value) => {
     const uppercase = /[A-Z]+/;
     const lowercase = /[a-z]+/;
     const digit = /[0-9]+/;
 
-    if (!uppercase.test(value) || !lowercase.test(value) || !digit.test(value) || value.length < 8) {
-      throw new Error('The password must be at least 8 characters long and contain uppercase and lowercase letters and digits.');
+    if (
+      !uppercase.test(value) ||
+      !lowercase.test(value) ||
+      !digit.test(value) ||
+      value.length < 8
+    ) {
+      throw new Error(
+        'The password must be at least 8 characters long and contain uppercase and lowercase letters and digits.'
+      );
     }
 
     return true;
@@ -153,14 +167,14 @@ router.patch(
       next(error);
     }
   }
-)
+);
 
 /**
- * @api {patch} /api/users/:id Update an user
+ * @api {patch} /users/:id Update an user
  * @apiVersion 0.0.1
  * @apiName PatchUsers
  * @apiGroup Users
- * 
+ *
  * @apiParam (Params) {String} id
  *
  * @apiSuccess {Object} user
@@ -177,13 +191,13 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 /**
- * @api {delete} /api/users/:id Delete an user
+ * @api {delete} /users/:id Delete an user
  * @apiVersion 0.0.1
  * @apiName DeleteUsers
  * @apiGroup Users
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} user
  *
  */

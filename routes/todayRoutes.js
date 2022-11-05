@@ -3,7 +3,7 @@ import * as Today from '../controllers/todayController';
 const router = express.Router();
 
 /**
- * @api {get} /api/musicday Get all musics of the day
+ * @api {get} /musicday Get all musics of the day
  * @apiVersion 0.0.1
  * @apiName GetMusics
  * @apiGroup MusicsOfTheDay
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * @api {get} /api/musicday Get all musics of the day
+ * @api {get} /musicday Get all musics of the day
  * @apiVersion 0.0.1
  * @apiName GetMusics
  * @apiGroup MusicsOfTheDay

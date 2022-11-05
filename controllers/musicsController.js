@@ -152,8 +152,6 @@ export async function postMusic(music) {
 }
 
 export async function patchMusic(musicId, updatedAttributes) {
-  console.log('>>> musicId', musicId);
-  console.log('>>> updatedAttributes', updatedAttributes);
   if (!musicId) {
     return errorMessages.generals.missingId;
   }

@@ -3,7 +3,7 @@ import * as Games from '../controllers/gamesController';
 const router = express.Router();
 
 /**
- * @api {get} /api/games Get all games
+ * @api {get} /games Get all games
  * @apiVersion 0.0.1
  * @apiName GetGames
  * @apiGroup Games
@@ -12,27 +12,27 @@ const router = express.Router();
  *
  */
 router.get('/', async (req, res) => {
-    return res.json(await Games.getGames());
+  return res.json(await Games.getGames());
 });
 
 /**
- * @api {get} /api/games/:id Get single game
+ * @api {get} /games/:id Get single game
  * @apiVersion 0.0.1
  * @apiName GetGame
  * @apiGroup Games
  *
  * @apiParam (Params) {String} id
- * 
+ *
  * @apiSuccess {Object} game
  *
  */
- router.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    return res.json(await Games.getGame(id));
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  return res.json(await Games.getGame(id));
 });
 
 /**
- * @api {post} /api/games Generate new game
+ * @api {post} /games Generate new game
  * @apiVersion 0.0.1
  * @apiName PostGame
  * @apiGroup Games
@@ -40,8 +40,8 @@ router.get('/', async (req, res) => {
  * @apiSuccess {Object} game
  *
  */
- router.post('/', async (req, res) => {
-    return res.json(await Games.generateNewGame(req.body));
+router.post('/', async (req, res) => {
+  return res.json(await Games.generateNewGame(req.body));
 });
 
 module.exports = router;

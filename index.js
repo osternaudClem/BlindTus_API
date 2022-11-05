@@ -31,7 +31,7 @@ const server = http.createServer(app);
 dotenv.config();
 
 // connect to Mongo when the app initializes
-mongoose.connect(`mongodb+srv://Cl3tus:YNpBR6Q67pGFaHvP@cluster0.ukxknfk.mongodb.net/BlindTus?retryWrites=true&w=majority`);
+mongoose.connect(process.env.MONGO_URL);
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -39,17 +39,19 @@ app.use(boolParser());
 
 app.use(cors());
 
-app.use(expressWinston.logger({
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.simple()
-    }),
-  ],
-  meta: false,
-  msg: `{{res.statusCode}} - {{req.method}} - {{req.url}} - {{res.responseTime}}ms`,
-  expressFormat: true,
-  colorize: true,
-}));
+app.use(
+  expressWinston.logger({
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.simple(),
+      }),
+    ],
+    meta: false,
+    msg: `{{res.statusCode}} - {{req.method}} - {{req.url}} - {{res.responseTime}}ms`,
+    expressFormat: true,
+    colorize: true,
+  })
+);
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -58,30 +60,29 @@ function authenticateToken(req, res, next) {
   if (token === null || token === undefined) return res.sendStatus(401);
 
   if (token !== process.env.TOKEN_SECRET) {
-    return res.status(403).send("Token invalid !");
+    return res.status(403).send('Token invalid !');
   }
 
   next();
 }
 
-app.use('/api', express.static('datas'));
+app.use('/', express.static('datas'));
 
 // routes
-app.use('/api/doc', express.static(__dirname + '/doc'));
-app.use('/api/categories',authenticateToken, CategoriesRoute);
-app.use('/api/musics', authenticateToken, MusicsRoute);
-app.use('/api/musicsday', authenticateToken, TodayRoute);
-app.use('/api/movies', authenticateToken, MoviesRoute);
-app.use('/api/users', authenticateToken, UsersRoute);
-app.use('/api/games', authenticateToken, GamesRoute);
-app.use('/api/history', authenticateToken, HistoryRoute);
-app.use('/api/historytoday', authenticateToken, HistoryTodayRoute);
+app.use('/doc', express.static(__dirname + '/doc'));
+app.use('/categories', authenticateToken, CategoriesRoute);
+app.use('/musics', authenticateToken, MusicsRoute);
+app.use('/musicsday', authenticateToken, TodayRoute);
+app.use('/movies', authenticateToken, MoviesRoute);
+app.use('/users', authenticateToken, UsersRoute);
+app.use('/games', authenticateToken, GamesRoute);
+app.use('/history', authenticateToken, HistoryRoute);
+app.use('/historytoday', authenticateToken, HistoryTodayRoute);
 app.use(errorController);
 
 // Websocket
 const io = socketio.getIo(server);
 instrument(io, { auth: false });
-
 
 server.listen(PORT, () => {
   console.log('Server is running on port ' + `${PORT}`.green);

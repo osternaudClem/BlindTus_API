@@ -3,7 +3,7 @@ import * as History from '../controllers/historyController';
 const router = express.Router();
 
 /**
- * @api {get} /api/history Get all history
+ * @api {get} /history Get all history
  * @apiVersion 0.0.1
  * @apiName GetAllHistory
  * @apiGroup History
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * @api {get} /api/history/:id Get single history
+ * @api {get} /history/:id Get single history
  * @apiVersion 0.0.1
  * @apiName GetHistory
  * @apiGroup History
@@ -34,7 +34,7 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
- * @api {post} /api/history Save history
+ * @api {post} /history Save history
  * @apiVersion 0.0.1
  * @apiName PostHistory
  * @apiGroup History

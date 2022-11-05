@@ -4,7 +4,7 @@ import * as Movies from '../controllers/moviesController';
 const router = express.Router();
 
 /**
- * @api {get} /api/musics Get all musics
+ * @api {get} /musics Get all musics
  * @apiVersion 0.0.1
  * @apiName GetMusics
  * @apiGroup Musics
@@ -40,7 +40,7 @@ router.get('/extract', async (req, res) => {
 });
 
 /**
- * @api {get} /api/musics/:id Get single music
+ * @api {get} /musics/:id Get single music
  * @apiVersion 0.0.1
  * @apiName GetMusic
  * @apiGroup Musics
@@ -58,7 +58,7 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
- * @api {post} /api/musics Create new music
+ * @api {post} /musics Create new music
  * @apiVersion 0.0.1
  * @apiName PostMusics
  * @apiGroup Musics
@@ -79,7 +79,7 @@ router.post('/', async (req, res) => {
 });
 
 /**
- * @api {patch} /api/musics/:id Update a music
+ * @api {patch} /musics/:id Update a music
  * @apiVersion 0.0.1
  * @apiName PatchMusics
  * @apiGroup Musics
@@ -95,7 +95,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 /**
- * @api {post} /api/musics/:id Delete a music
+ * @api {post} /musics/:id Delete a music
  * @apiVersion 0.0.1
  * @apiName DeleteMusics
  * @apiGroup Musics

@@ -3,7 +3,7 @@ import * as Movies from '../controllers/moviesController';
 const router = express.Router();
 
 /**
- * @api {get} /api/movies Get all movies
+ * @api {get} /movies Get all movies
  * @apiVersion 0.0.1
  * @apiName GetMovies
  * @apiGroup Movies
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * @api {get} /api/movies/:id Get single movie
+ * @api {get} /movies/:id Get single movie
  * @apiVersion 0.0.1
  * @apiName GetMovie
  * @apiGroup Movies
@@ -33,7 +33,7 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
- * @api {get} /api/movies/find/:query Search movies from TheMovieDB API
+ * @api {get} /movies/find/:query Search movies from TheMovieDB API
  * @apiVersion 0.0.1
  * @apiName FindMovies
  * @apiGroup Movies
@@ -49,7 +49,7 @@ router.get('/find/:query', async (req, res) => {
 });
 
 /**
- * @api {get} /api/movies/find/:id Get single movie from TheMovieDB API
+ * @api {get} /movies/find/:id Get single movie from TheMovieDB API
  * @apiVersion 0.0.1
  * @apiName FindMovieById
  * @apiGroup Movies
@@ -65,7 +65,7 @@ router.get('/find/id/:movie_id', async (req, res) => {
 });
 
 /**
- * @api {post} /api/movies Save movie
+ * @api {post} /movies Save movie
  * @apiVersion 0.0.1
  * @apiName PostMovie
  * @apiGroup Movies
@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
 });
 
 /**
- * @api {patch} /api/movies/:id Update single movie
+ * @api {patch} /movies/:id Update single movie
  * @apiVersion 0.0.1
  * @apiName PatchMovie
  * @apiGroup Movies
@@ -102,7 +102,7 @@ router.patch('/:movie_id', async (req, res) => {
 });
 
 /**
- * @api {delete} /api/movies/:id Delete single movie
+ * @api {delete} /movies/:id Delete single movie
  * @apiVersion 0.0.1
  * @apiName DeleteMovie
  * @apiGroup Movies
