@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import * as Users from '../controllers/usersController';
+import { sendMail } from '../utils/mailUtils';
 const router = express.Router();
 
 /**
@@ -216,6 +217,20 @@ router.post('/save-new-password', async (req, res) => {
   const { token, password } = req.body;
 
   return res.json(await Users.saveNewPassword(token, password));
+});
+
+router.post('/test/send-test', async (req, res) => {
+  sendMail(
+    'Confirmez votre e-mail',
+    {
+      email: 'osternaud.clement@gmail.com',
+      username: 'Cl3tus',
+      token: 'ewfwefwefwefwfe',
+    },
+    'newpassword'
+  );
+
+  return res.json('send test email');
 });
 
 module.exports = router;
