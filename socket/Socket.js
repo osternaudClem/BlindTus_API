@@ -8,11 +8,7 @@ import {
   getUsersInRoom,
 } from './User';
 
-import {
-  addRoom,
-  updateRoom,
-  getRoom,
-} from './Room';
+import { addRoom, updateRoom, getRoom } from './Room';
 
 import {
   createGame,
@@ -31,18 +27,22 @@ let io = null;
 const getIo = function (server) {
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000", "https://admin.socket.io", "https://blindtus.cl3tus.com"],
+      origin: [
+        'http://localhost:3000',
+        'https://admin.socket.io',
+        'https://blindtus.com',
+      ],
       credentials: true,
     },
-    path: '/ws'
+    path: '/ws',
   });
 
   io.listen(4001);
 
-  io.on("connection", (socket) => {
-    console.log('>>> new connection', socket.id)
+  io.on('connection', (socket) => {
+    console.log('>>> new connection', socket.id);
 
-    socket.on('disconnect', reason => {
+    socket.on('disconnect', (reason) => {
       const user = getUser({ id: socket.id });
 
       if (user && user.isCreator) {
@@ -57,9 +57,7 @@ const getIo = function (server) {
       removeUser(socket.id);
 
       if (user) {
-        io.to(user.room).emit('ROOM_USERS',
-          getUsersInRoom(user.room)
-        );
+        io.to(user.room).emit('ROOM_USERS', getUsersInRoom(user.room));
 
         if (!io.sockets.adapter.rooms.has(user.room)) {
           deleteGame({ roomId: user.room });
@@ -68,7 +66,12 @@ const getIo = function (server) {
 
       if (user && user.room) {
         const game = removeGameUser({ roomId: user.room, userId: user.id });
-        io.to(user.room).emit('PLAYER_DISCONNECTED', user.username, game, reason);
+        io.to(user.room).emit(
+          'PLAYER_DISCONNECTED',
+          user.username,
+          game,
+          reason
+        );
       }
     });
 
@@ -101,7 +104,7 @@ const getIo = function (server) {
         callback({ user, room, game });
       } else {
         callback({ error: `The room ${roomCode} doesn't exist`, code: 1 });
-      };
+      }
     });
 
     socket.on('LEAVE_ROOM', () => {
@@ -120,7 +123,7 @@ const getIo = function (server) {
       });
     });
 
-    socket.on('UPDATE_SETTINGS', settings => {
+    socket.on('UPDATE_SETTINGS', (settings) => {
       let user = getUser({ id: socket.id });
       let room = getRoom(user.room);
       updateRoom(room.id, { settings });
@@ -134,9 +137,15 @@ const getIo = function (server) {
       // Delete game if already exist
       deleteGame({ roomId: room.id });
       const musics = await Musics.getMusics(room.settings.totalMusics, true);
-      updateRoom(room.id, { musics, step: 0, totalStep: musics.length, users, rounds: [] });
+      updateRoom(room.id, {
+        musics,
+        step: 0,
+        totalStep: musics.length,
+        users,
+        rounds: [],
+      });
       const game = createGame(room.id, musics, users);
-      io.to(user.room).emit('START_GAME', ({ room, game, musics }));
+      io.to(user.room).emit('START_GAME', { room, game, musics });
     });
 
     socket.on('ASK_NEW_GAME', (callback) => {
@@ -161,7 +170,10 @@ const getIo = function (server) {
       const user = getUser({ id: socket.id });
       const room = getRoom(user.room);
       const players = addReadyPlayer(room.id, user.id);
-      io.to(room.id).emit('IS_EVERYBODY_READY', ({ isReadyToPlay: room.users.length === players.length, players }));
+      io.to(room.id).emit('IS_EVERYBODY_READY', {
+        isReadyToPlay: room.users.length === players.length,
+        players,
+      });
     });
 
     socket.on('ASK_START_MUSIC', () => {
@@ -173,20 +185,27 @@ const getIo = function (server) {
       const user = getUser({ id: socket.id });
       const room = getRoom(user.room);
 
-      const game = addScore(room.id, user.id, user.username, score, answer, step);
+      const game = addScore(
+        room.id,
+        user.id,
+        user.username,
+        score,
+        answer,
+        step
+      );
       const usersLength = room.users.length;
 
-      io.to(room.id).emit('UPDATE_SCORES', ({ game }));
+      io.to(room.id).emit('UPDATE_SCORES', { game });
 
       if (game.rounds[step].scores.length === usersLength) {
         const nextStep = step + 1;
         cleanReadyPlayers(room.id);
 
-        io.to(room.id).emit('NEXT_ROUND', ({
+        io.to(room.id).emit('NEXT_ROUND', {
           step: nextStep,
           game,
           isEndGame: nextStep === game.movies.length,
-        }));
+        });
       }
 
       callback({ game });
@@ -200,40 +219,36 @@ const getIo = function (server) {
   });
 
   return io;
-}
+};
 
 const joinRoom = function (socket, username, room, isCreator) {
   let user = getUser({ username });
 
   if (!user) {
-    const newUser = addUser(
-      { id: socket.id, username, room, isCreator });
+    const newUser = addUser({ id: socket.id, username, room, isCreator });
 
     if (newUser.error) return callback(newUser.error);
     user = newUser.user;
-  }
-  else {
+  } else {
     updateUser(username, { id: socket.id, room });
   }
 
   // Emit will send message to the user
   // who had joined
   socket.emit('MESSAGE', {
-    user: 'admin', text:
-      `${user.username},
-    welcome to room ${room}.`
+    user: 'admin',
+    text: `${user.username},
+    welcome to room ${room}.`,
   });
 
   socket.join(room);
 
-  io.to(room).emit('ROOM_USERS',
-    getUsersInRoom(room)
-  );
+  io.to(room).emit('ROOM_USERS', getUsersInRoom(room));
 
   return user;
-}
+};
 
 module.exports = {
   getIo,
   joinRoom,
-}
+};
