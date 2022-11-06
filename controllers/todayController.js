@@ -72,6 +72,12 @@ export async function getMusic() {
         TodayModel
       );
       music = await newMusic.save();
+      music = await music.populate({
+        path: 'music',
+        populate: {
+          path: 'movie',
+        },
+      });
     }
 
     const count = await TodayModel.count();

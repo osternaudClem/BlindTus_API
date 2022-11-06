@@ -30,8 +30,14 @@ const server = http.createServer(app);
 // get config vars
 dotenv.config();
 
+const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 // connect to Mongo when the app initializes
-mongoose.connect(process.env.MONGO_URL);
+console.log('>>> isDev', isDev);
+if (isDev) {
+  mongoose.connect('mongodb://127.0.0.1/Blindtus');
+} else {
+  mongoose.connect(process.env.MONGO_URL);
+}
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
