@@ -29,6 +29,13 @@ router.get('/', async (req, res) => {
   );
 });
 
+router.get('/precise', async (req, res) => {
+  const { limit = 10, withProposals = false } = req.query;
+  return res.json(
+    await Musics.getPreciseMusics(parseInt(limit), withProposals)
+  );
+});
+
 router.get('/extract/:musicId', async (req, res) => {
   const { musicId } = req.params;
   return res.json(await Musics.extractSingleMp3(musicId));

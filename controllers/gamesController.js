@@ -22,21 +22,22 @@ export async function getGame(gameId) {
 
   try {
     if (Types.ObjectId.isValid(gameId)) {
-      game = await GamesModel.findById(gameId).populate({
-        path: 'musics',
-        populate: {
-          path: 'movie',
-        },
-      })
+      game = await GamesModel.findById(gameId)
+        .populate({
+          path: 'musics',
+          populate: {
+            path: 'movie',
+          },
+        })
         .populate('created_by');
-
     } else {
-      game = await GamesModel.findOne({ code: gameId }).populate({
-        path: 'musics',
-        populate: {
-          path: 'movie',
-        },
-      })
+      game = await GamesModel.findOne({ code: gameId })
+        .populate({
+          path: 'musics',
+          populate: {
+            path: 'movie',
+          },
+        })
         .populate('created_by');
     }
 
@@ -59,25 +60,77 @@ export async function generateNewGame(game) {
   while (!uniqueCode) {
     // Generate 5 characters codes
     code = Math.random().toString(36).substring(2, 7).toUpperCase();
-    uniqueCode = !!allGames.filter(g => g.code === code);
+    uniqueCode = !!allGames.filter((g) => g.code === code);
   }
 
   game.code = code;
 
   const movies = await MoviesModel.find();
   const proposals = [];
-  
+
   if (game.musics) {
-    game.musics.map(music => {
-      const moviesGenre = music.movie.genres[0];
-      const moviesSameGenre = movies.filter(mo => {
+    game.musics.map((music) => {
+      const moviesGenres = music.movie.genres;
+      let moviesSameGenre = movies.filter((mo) => {
         if (mo.title_fr === music.movie.title_fr) {
           return;
         }
-        return mo.genres.find(g => g === moviesGenre);
+        return mo.genres[0] === moviesGenres[0];
       });
 
-      const musicProposals = shuffle(moviesSameGenre).slice(0, 10).map(({ title_fr }) => title_fr);
+      if (moviesSameGenre.length < 10) {
+        const limit = moviesSameGenre.length;
+        const otherMoviesSameGenre = movies.filter((mo) => {
+          if (mo.title_fr === music.movie.title_fr) {
+            return;
+          }
+          return mo.genres.find((g) => g === moviesGenres[0]);
+        });
+
+        for (let i = 0; i < 10 - limit; i++) {
+          let isOk = false;
+          while (!isOk) {
+            for (let y = 0; y < otherMoviesSameGenre.length; y++) {
+              if (
+                otherMoviesSameGenre[y].title_fr !== music.movie.title_fr &&
+                !moviesSameGenre.some(
+                  (m) => m.title_fr === otherMoviesSameGenre[y].title_fr
+                )
+              ) {
+                moviesSameGenre.push(otherMoviesSameGenre[y]);
+                isOk = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      const shuffledMovies = shuffle(movies);
+      if (moviesSameGenre.length < 10) {
+        const limit = moviesSameGenre.length;
+        for (let i = 0; i < 10 - limit; i++) {
+          let isOk = false;
+          while (!isOk) {
+            for (let y = 0; y < shuffledMovies.length; y++) {
+              if (
+                shuffledMovies[y].title_fr !== music.movie.title_fr &&
+                !moviesSameGenre.some(
+                  (m) => m.title_fr === shuffledMovies[y].title_fr
+                )
+              ) {
+                moviesSameGenre.push(shuffledMovies[y]);
+                isOk = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      const musicProposals = shuffle(moviesSameGenre)
+        .slice(0, 10)
+        .map(({ title_fr }) => title_fr);
       proposals.push(musicProposals);
     });
   }
