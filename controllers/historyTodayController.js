@@ -19,7 +19,9 @@ export async function getHistory(historyId) {
   }
 
   try {
-    const history = await HistoryTodayModel.findById(historyId).populate('user').populate('today');
+    const history = await HistoryTodayModel.findById(historyId)
+      .populate('user')
+      .populate('today');
 
     if (!history) {
       return errorMessages.history.notFound;
@@ -35,7 +37,18 @@ export async function getTodayUser(userId) {
   try {
     const today = await Today.getMusic();
 
-    return await HistoryTodayModel.findOne({ today: today.music._id, user: userId });
+    return await HistoryTodayModel.findOne({
+      today: today.music._id,
+      user: userId,
+    });
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function getHistoryByUser(userId) {
+  try {
+    return await HistoryTodayModel.find({ user: userId });
   } catch (error) {
     return error;
   }
@@ -43,10 +56,14 @@ export async function getTodayUser(userId) {
 
 export async function saveHistory(history) {
   try {
-    const updatedHistory = await HistoryTodayModel.findOneAndUpdate({ user: history.user, today: history.today }, history, {
-      new: true,
-      upsert: true,
-    });
+    const updatedHistory = await HistoryTodayModel.findOneAndUpdate(
+      { user: history.user, today: history.today },
+      history,
+      {
+        new: true,
+        upsert: true,
+      }
+    );
     return updatedHistory;
   } catch (error) {
     return error;

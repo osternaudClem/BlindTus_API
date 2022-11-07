@@ -31,9 +31,14 @@ router.get('/:id', async (req, res) => {
   return res.json(await HistoryToday.getHistory(id));
 });
 
-router.get('/user/:user_id', async (req, res) => {
+router.get('/user/today/:user_id', async (req, res) => {
   const { user_id } = req.params;
   return res.json(await HistoryToday.getTodayUser(user_id));
+});
+
+router.get('/user/:user_id', async (req, res) => {
+  const { user_id } = req.params;
+  return res.json(await HistoryToday.getHistoryByUser(user_id));
 });
 
 /**
