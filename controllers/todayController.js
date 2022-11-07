@@ -86,3 +86,20 @@ export async function getMusic() {
     return error;
   }
 }
+
+export async function getTodayFromYesterday() {
+  try {
+    const music = await TodayModel.find().populate({
+      path: 'music',
+      populate: {
+        path: 'movie',
+      },
+    });
+
+    console.log('>>> yesterday', music.at(-2)._id);
+
+    return music.at(-2);
+  } catch (error) {
+    return error;
+  }
+}

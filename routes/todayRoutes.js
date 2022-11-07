@@ -28,6 +28,10 @@ router.get('/today', async (req, res) => {
   return res.json(await Today.getMusic());
 });
 
+router.get('/yesterday', async (req, res) => {
+  return res.json(await Today.getTodayFromYesterday());
+});
+
 router.post('/', async (req, res) => {
   return res.json(await Today.postMusic(req.body));
 });
