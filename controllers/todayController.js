@@ -96,8 +96,6 @@ export async function getTodayFromYesterday() {
       },
     });
 
-    console.log('>>> yesterday', music.at(-2)._id);
-
     return music.at(-2);
   } catch (error) {
     return error;

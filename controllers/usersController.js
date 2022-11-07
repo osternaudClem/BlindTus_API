@@ -10,32 +10,33 @@ export async function getUsers(usernames) {
     let users = [];
     if (usernames !== undefined) {
       users = await UsersModel.find({
-        'username': {
-          $in: usernames.split(',')
-        }
-      })
-    }
-    else {
+        username: {
+          $in: usernames.split(','),
+        },
+      });
+    } else {
       users = await UsersModel.find();
     }
 
-    const userIds = users.map(user => user.id);
-    const history = await HistoryModel.find({ 'user': { $in: userIds } });
-    const historyToday = await HistoryTodayModel.find({ 'user': { $in: userIds } });
+    const userIds = users.map((user) => user.id);
+    const history = await HistoryModel.find({ user: { $in: userIds } });
+    const historyToday = await HistoryTodayModel.find({
+      user: { $in: userIds },
+    });
     const updatedUser = [];
 
-    users.map(user => {
+    users.map((user) => {
       const u = JSON.parse(JSON.stringify(user));
       const historyMerged = [];
       const historyTodayMerged = [];
 
-      history.map(h => {
+      history.map((h) => {
         if (h.user.equals(user._id)) {
           historyMerged.push(h);
         }
       });
 
-      historyToday.map(history => {
+      historyToday.map((history) => {
         if (history.user.equals(user._id)) {
           historyTodayMerged.push(history);
         }
@@ -44,7 +45,7 @@ export async function getUsers(usernames) {
       u.history = historyMerged;
       u.historyToday = historyTodayMerged;
       return updatedUser.push(u);
-    })
+    });
 
     return updatedUser;
   } catch (error) {
@@ -64,6 +65,12 @@ export async function getUser(userId) {
       return errorMessages.users.notFound;
     }
 
+    const historyToday = await HistoryTodayModel.find({
+      user: { $in: user._id },
+    });
+
+    user._doc.historyToday = historyToday;
+
     return user;
   } catch (error) {
     return error;
@@ -73,18 +80,20 @@ export async function getUser(userId) {
 export async function postUser(user) {
   const newUser = createNewEntity(user, UsersModel);
 
-  const token = crypto.createHash('md5').update(Math.random().toString().substring(2)).digest('hex');
+  const token = crypto
+    .createHash('md5')
+    .update(Math.random().toString().substring(2))
+    .digest('hex');
   newUser.token = token;
 
   try {
     const savedUser = await newUser.save();
 
-    sendMail('Confirmez votre e-mail',
-      {
-        email: savedUser.email,
-        username: savedUser.username,
-        token: token,
-      });
+    sendMail('Confirmez votre e-mail', {
+      email: savedUser.email,
+      username: savedUser.username,
+      token: token,
+    });
 
     return savedUser;
   } catch (error) {
@@ -108,7 +117,8 @@ export async function updatePassword(userId, { password, newPassword }) {
 
     if (!isValidPass) {
       return {
-        error: 'wrongPassword', messages: 'Mot de passe incorrect'
+        error: 'wrongPassword',
+        messages: 'Mot de passe incorrect',
       };
     }
 
@@ -171,23 +181,25 @@ export async function login(email, password) {
 
   try {
     // Remove empty space that it may added by mistake
-    const cleanEmail = email.replaceAll(/\s/g,'');
+    const cleanEmail = email.replaceAll(/\s/g, '');
     const user = await UsersModel.findOne({
       email: cleanEmail,
-    }).select('+password').select('+confirmed');
+    })
+      .select('+password')
+      .select('+confirmed');
 
     if (!user) {
       return { error: 'Utilisateur non trouvé' };
     }
 
     if (!user.confirmed) {
-      return { error: 'L\'utilisateur n\'a pas validé sont compte' };
+      return { error: "L'utilisateur n'a pas validé sont compte" };
     }
 
     const isValidPass = await comparePassword(password, user.password);
     if (!isValidPass) {
       return {
-        error: 'Mot de passe incorect'
+        error: 'Mot de passe incorect',
       };
     }
 
@@ -207,9 +219,12 @@ export async function confirm(token) {
   // 1 day expiration date
   const expiresIn = 1000 * 60 * 60 * 24;
 
-  if ((Date.now() - user.expires) > expiresIn) {
+  if (Date.now() - user.expires > expiresIn) {
     await user.remove();
-    return { error: true, messages: 'Le lien de validation a expiré ! Le compte a été supprimé !' };
+    return {
+      error: true,
+      messages: 'Le lien de validation a expiré ! Le compte a été supprimé !',
+    };
   }
 
   user.confirmed = true;
@@ -226,20 +241,25 @@ export async function askNewPassword(email) {
       return { messages: errorMessages.users.notFound, error: true };
     }
 
-    const token = crypto.createHash('md5').update(Math.random().toString().substring(2)).digest('hex');
+    const token = crypto
+      .createHash('md5')
+      .update(Math.random().toString().substring(2))
+      .digest('hex');
 
     const updatedUser = await patchUser(user._id, {
       tokenNewPassword: token,
       expiredNewPassword: new Date(),
     });
 
-    sendMail('Réinitialisation de votre mot de passe',
+    sendMail(
+      'Réinitialisation de votre mot de passe',
       {
         email: user.email,
         username: user.username,
         token: token,
       },
-      'newpassword');
+      'newpassword'
+    );
 
     updatedUser.save();
 
@@ -260,13 +280,17 @@ export async function saveNewPassword(token, password) {
     // 2 day expiration date
     const expiresIn = 1000 * 60 * 60 * 48;
 
-    if ((Date.now() - user.expiredNewPassword) > expiresIn) {
+    if (Date.now() - user.expiredNewPassword > expiresIn) {
       await patchUser(user._id, {
         tokenNewPassword: null,
         expiredNewPassword: null,
       });
 
-      return { error: true, messages: '48h se sont écoulées depuis la demande. Veuillez en faire une nouvelle' };
+      return {
+        error: true,
+        messages:
+          '48h se sont écoulées depuis la demande. Veuillez en faire une nouvelle',
+      };
     }
 
     const updatedUser = await patchUser(user._id, {
@@ -276,7 +300,6 @@ export async function saveNewPassword(token, password) {
     });
 
     return updatedUser;
-
   } catch (error) {
     return error;
   }

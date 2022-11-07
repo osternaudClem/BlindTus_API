@@ -32,7 +32,6 @@ dotenv.config();
 
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 // connect to Mongo when the app initializes
-console.log('>>> isDev', isDev);
 if (isDev) {
   mongoose.connect('mongodb://127.0.0.1/Blindtus');
 } else {
