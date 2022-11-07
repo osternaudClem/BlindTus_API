@@ -39,13 +39,31 @@ export async function getMusics(
       const movies = await MoviesModel.find();
 
       shuffleMusics.map((music, index) => {
-        const moviesGenre = music.movie.genres[0];
-        const moviesSameGenre = movies.filter((mo) => {
+        const moviesGenre = music.movie.genres;
+        let moviesSameGenre = movies.filter((mo) => {
           if (mo.title_fr === music.movie.title_fr) {
             return;
           }
-          return mo.genres.find((g) => g === moviesGenre);
+          return mo.genres.find((g) => g === moviesGenres[0]);
         });
+
+        if (moviesGenres.length > 1) {
+          moviesSameGenre = moviesSameGenre.filter((mo) => {
+            if (mo.title_fr === music.movie.title_fr) {
+              return;
+            }
+            return mo.genres.find((g) => g === moviesGenres[1]);
+          });
+        }
+
+        if (moviesGenres.length > 2) {
+          moviesSameGenre = moviesSameGenre.filter((mo) => {
+            if (mo.title_fr === music.movie.title_fr) {
+              return;
+            }
+            return mo.genres.find((g) => g === moviesGenres[2]);
+          });
+        }
 
         const shuffledMovies = shuffle(movies);
         if (moviesSameGenre.length < 10) {
@@ -94,13 +112,31 @@ export async function getMusic(musicId, withProposals = false) {
     let returnedMusic = null;
     if (withProposals) {
       const movies = await MoviesModel.find();
-      const moviesGenre = music.movie.genres[0];
-      const moviesSameGenre = movies.filter((mo) => {
+      const moviesGenres = music.movie.genres;
+      let moviesSameGenre = movies.filter((mo) => {
         if (mo.title_fr === music.movie.title_fr) {
           return;
         }
-        return mo.genres.find((g) => g === moviesGenre);
+        return mo.genres.find((g) => g === moviesGenres[0]);
       });
+
+      if (moviesGenres.length > 1) {
+        moviesSameGenre = moviesSameGenre.filter((mo) => {
+          if (mo.title_fr === music.movie.title_fr) {
+            return;
+          }
+          return mo.genres.find((g) => g === moviesGenres[1]);
+        });
+      }
+
+      if (moviesGenres.length > 2) {
+        moviesSameGenre = moviesSameGenre.filter((mo) => {
+          if (mo.title_fr === music.movie.title_fr) {
+            return;
+          }
+          return mo.genres.find((g) => g === moviesGenres[2]);
+        });
+      }
 
       const shuffledMovies = shuffle(movies);
       if (moviesSameGenre.length < 10) {
