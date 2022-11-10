@@ -18,6 +18,7 @@ export async function getMusics(
   addNotVerified = false
 ) {
   let musics = [];
+
   try {
     if (!addNotVerified) {
       musics = await MusicsModel.find({ verified: true }).populate('movie');

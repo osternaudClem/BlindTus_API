@@ -27,12 +27,12 @@ let io = null;
 const getIo = function (server) {
   io = new Server(server, {
     cors: {
-      // origin: [
-      //   'http://localhost:3000',
-      //   'https://admin.socket.io',
-      //   'https://blindtus.com',
-      // ],
-      origin: '*',
+      origin: [
+        'http://localhost:3000',
+        'https://admin.socket.io',
+        'https://blindtus.com',
+      ],
+      // origin: '*',
       credentials: true,
     },
     path: '/ws',
