@@ -29,11 +29,8 @@ router.get('/', async (req, res) => {
   );
 });
 
-router.get('/precise', async (req, res) => {
-  const { limit = 10, withProposals = false } = req.query;
-  return res.json(
-    await Musics.getPreciseMusics(parseInt(limit), withProposals)
-  );
+router.patch('/all', async (req, res) => {
+  return res.json(await Musics.pathAll());
 });
 
 router.get('/extract/:musicId', async (req, res) => {

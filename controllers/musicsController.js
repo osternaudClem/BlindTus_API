@@ -83,62 +83,13 @@ export async function getMusics(
   }
 }
 
-export async function getPreciseMusics(limit = 10, withProposals = false) {
+export async function pathAll() {
   try {
-    const musicsId = [
-      '6339ad2c480b76bcbcc7da19',
-      '6366c5fe30db6efcbe89dae1',
-      '6339ae7d480b76bcbcc7da3e',
-      '632c3bfea3ae27c39569c089',
-      '633082af0fafa35c0e74c47d',
-    ];
-    const musics = await MusicsModel.find({ _id: musicsId }).populate('movie');
-
-    let returnedMusics = [];
-
-    if (withProposals) {
-      const movies = await MoviesModel.find();
-
-      musics.map((music, index) => {
-        const moviesGenres = music.movie.genres;
-        let moviesSameGenre = movies.filter((mo) => {
-          if (mo.title_fr === music.movie.title_fr) {
-            return;
-          }
-          return mo.genres.find((g) => g === moviesGenres[0]);
-        });
-
-        const shuffledMovies = shuffle(movies);
-        if (moviesSameGenre.length < 10) {
-          const limit = moviesSameGenre.length;
-          for (let i = 0; i < 10 - limit; i++) {
-            let isOk = false;
-            while (!isOk) {
-              for (let y = 0; y < shuffledMovies.length; y++) {
-                if (
-                  shuffledMovies[y].title_fr !== music.movie.title_fr &&
-                  !moviesSameGenre.some(
-                    (m) => m.title_fr === shuffledMovies[y].title_fr
-                  )
-                ) {
-                  moviesSameGenre.push(shuffledMovies[y]);
-                  isOk = true;
-                  break;
-                }
-              }
-            }
-          }
-        }
-
-        const musicProposals = shuffle(moviesSameGenre)
-          .slice(0, 10)
-          .map(({ title_fr }) => title_fr);
-        music.proposals = musicProposals;
-        returnedMusics.push(music);
-      });
-    }
-
-    return returnedMusics.length > 0 ? returnedMusics : musics;
+    await MusicsModel.updateMany(
+      {},
+      { $set: { category: ['626962053dcb17a8995789a1'] } }
+    );
+    return 'ok';
   } catch (error) {
     return error;
   }
@@ -269,7 +220,7 @@ export async function extractMp3(limit = 50) {
 
   try {
     const musics = await MusicsModel.find();
-    for (const music of musics.slice(100, limit)) {
+    for (const music of musics) {
       const { id, timecode } = youtube_parser(music.video);
       const start = Date.now();
       const audio_name = slug(`${music.author}-${music.title}-${id}`);

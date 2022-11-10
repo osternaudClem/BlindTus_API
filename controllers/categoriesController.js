@@ -17,8 +17,10 @@ export async function getCategory(categoryId) {
   }
 
   try {
-    const category = await CategoriesModel.findById(categoryId).populate('musics');
-    
+    const category = await CategoriesModel.findById(categoryId).populate(
+      'musics'
+    );
+
     if (!category) {
       return errorMessages.categories.notFound;
     }
@@ -55,7 +57,7 @@ export async function patchCategory(categoryId, updatesAttributes) {
 
     for (const key in updatedCategory) {
       if (key === 'musics') {
-          category.musics.push(updatedCategory.musics);
+        category.musics.push(updatedCategory.musics);
       } else {
         category[key] = updatedCategory[key];
       }
@@ -85,4 +87,4 @@ export async function deleteCategory(categoryId) {
   } catch (error) {
     return error;
   }
-} 
+}
