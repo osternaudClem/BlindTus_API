@@ -102,6 +102,7 @@ export async function generateNewGame(game) {
                 break;
               }
             }
+            isOk = true;
           }
         }
       }

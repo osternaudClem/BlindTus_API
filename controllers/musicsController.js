@@ -39,7 +39,7 @@ export async function getMusics(
     if (withProposals) {
       const movies = await MoviesModel.find();
 
-      shuffleMusics.map((music, index) => {
+      shuffleMusics.map((music) => {
         const moviesGenres = music.movie.genres;
         let moviesSameGenre = movies.filter((mo) => {
           if (mo.title_fr === music.movie.title_fr) {
@@ -66,6 +66,8 @@ export async function getMusics(
                   break;
                 }
               }
+
+              isOk = true;
             }
           }
         }
