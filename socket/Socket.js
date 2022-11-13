@@ -1,24 +1,24 @@
 import { Server } from 'socket.io';
 import {
   addUser,
-  removeUser,
   updateUser,
   getUser,
   getUsersInRoom,
+  deleteUser,
 } from './User';
 
-import { addRoom, updateRoom, getRoom } from './Room';
-
 import {
-  createGame,
+  addRoom,
+  updateRoom,
+  removeRoom,
+  removeUser,
+  getRoom,
+  addPlayer,
   addScore,
-  deleteGame,
-  getGame,
-  removeGameUser,
-  addReadyPlayer,
+  resetGame,
+  updateLoading,
   cleanReadyPlayers,
-  resetScore,
-} from './Game';
+} from './Room';
 
 import * as Musics from '../controllers/musicsController';
 
@@ -46,33 +46,35 @@ const getIo = function (server) {
     socket.on('disconnect', (reason) => {
       const user = getUser({ id: socket.id });
 
-      if (user && user.isCreator) {
-        const users = getUsersInRoom(user.room);
-
-        if (users.length > 1) {
-          updateUser(users[1].username, { isCreator: true });
-          socket.broadcast.to(users[1].id).emit('NEW_CREATOR');
-        }
-      }
-
-      removeUser(socket.id);
-
       if (user) {
-        io.to(user.room).emit('ROOM_USERS', getUsersInRoom(user.room));
+        if (user.isCreator) {
+          const users = getUsersInRoom(user.room);
 
-        if (!io.sockets.adapter.rooms.has(user.room)) {
-          deleteGame({ roomId: user.room });
+          if (users.length > 1) {
+            updateUser(users[1].username, { isCreator: true });
+            socket.broadcast.to(users[1].id).emit('NEW_CREATOR');
+          }
         }
-      }
 
-      if (user && user.room) {
-        const game = removeGameUser({ roomId: user.room, userId: user.id });
-        io.to(user.room).emit(
-          'PLAYER_DISCONNECTED',
-          user.username,
-          game,
-          reason
-        );
+        const room = removeUser(user.room, socket.id);
+        deleteUser(socket.id);
+
+        io.to(user.room).emit('ROOM_USERS', room.players);
+
+        if (!io.sockets.adapter.rooms.has(room.id)) {
+          removeRoom(user.room);
+        }
+
+        if (user.room) {
+          io.to(user.room).emit(
+            'PLAYER_DISCONNECTED',
+            user.username,
+            room,
+            reason
+          );
+        }
+
+        console.log('>>> disconnected', socket.id);
       }
     });
 
@@ -88,9 +90,9 @@ const getIo = function (server) {
     socket.on('CREATE_ROOM', ({ username, room, settings }, callback) => {
       const user = joinRoom(socket, username, room, true);
 
-      addRoom({ id: room, creator: user.id, settings });
+      const newRoom = addRoom(room, user, settings);
 
-      callback({ user });
+      callback(newRoom);
     });
 
     socket.on('JOIN_ROOM', ({ username, room }, callback) => {
@@ -99,95 +101,67 @@ const getIo = function (server) {
       if (io.sockets.adapter.rooms.has(roomCode)) {
         joinRoom(socket, username, roomCode, false);
         const user = getUser({ username });
-        const room = getRoom(roomCode);
-
-        const game = getGame(roomCode);
-        callback({ user, room, game });
+        const room = addPlayer(roomCode, user);
+        callback({ user, room });
       } else {
         callback({ error: `The room ${roomCode} doesn't exist`, code: 1 });
       }
     });
 
-    socket.on('LEAVE_ROOM', () => {
-      const user = getUser({ id: socket.id });
-      if (user) {
-        const room = getRoom(user.room);
-        removeGameUser({ roomId: room.id, userId: user.id });
-      }
-    });
-
-    socket.on('SEND_CHAT', ({ username, room, message }) => {
-      const user = getUser({ username });
-      io.to(user.room).emit('MESSAGE', {
-        user: username,
-        text: message,
-      });
-    });
-
-    socket.on('UPDATE_SETTINGS', (settings) => {
-      let user = getUser({ id: socket.id });
-      let room = getRoom(user.room);
-      updateRoom(room.id, { settings });
-      socket.broadcast.to(user.room).emit('SETTINGS_UPDATED', settings);
+    socket.on('UPDATE_SETTINGS', (roomId, settings) => {
+      const room = updateRoom(roomId, { settings });
+      io.to(roomId).emit('SETTINGS_UPDATED', room);
     });
 
     socket.on('INIT_GAME', async () => {
       const user = getUser({ id: socket.id });
-      const users = getUsersInRoom(user.room);
       const room = getRoom(user.room);
-      // Delete game if already exist
-      deleteGame({ roomId: room.id });
-      const musics = await Musics.getMusics(room.settings.totalMusics, true);
+      const musics = await Musics.getMusics(room.settings.total_musics, true);
+
       updateRoom(room.id, {
         musics,
         step: 0,
-        totalStep: musics.length,
-        users,
+        next_step: 1,
+        total_step: musics.length,
         rounds: [],
       });
-      const game = createGame(room.id, musics, users);
-      io.to(user.room).emit('START_GAME', { room, game, musics });
+      io.to(user.room).emit('START_GAME', room);
     });
 
-    socket.on('ASK_NEW_GAME', (callback) => {
+    socket.on('ASK_START_MUSIC', () => {
       const user = getUser({ id: socket.id });
-      resetScore(user.room);
-      socket.broadcast.to(user.room).emit('NEW_GAME');
-      callback({ user });
-    });
-
-    socket.on('GET_ROOM', (callback) => {
-      const user = getUser({ id: socket.id });
-
-      if (!user) {
-        return callback({ error: 'User not found' });
-      }
-
       let room = getRoom(user.room);
+      room = updateRoom(user.room, { step: room.next_step });
 
-      callback({ newRoom: room });
+      io.to(room.id).emit('START_MUSIC', room);
+    });
+
+    socket.on('UPDATE_LOADING', (loading) => {
+      const user = getUser({ id: socket.id });
+      const players = updateLoading(user.room, user.id, loading);
+      io.to(user.room).emit('IS_EVERYBODY_READY', {
+        isReady: false,
+        loadings: players,
+      });
     });
 
     socket.on('PLAYER_AUDIO_READY', () => {
       const user = getUser({ id: socket.id });
       const room = getRoom(user.room);
-      const players = addReadyPlayer(room.id, user.id);
-      io.to(room.id).emit('IS_EVERYBODY_READY', {
-        isReadyToPlay: room.users.length === players.length,
-        players,
-      });
-    });
+      const players = updateLoading(room.id, user.id, 100);
 
-    socket.on('ASK_START_MUSIC', () => {
-      const user = getUser({ id: socket.id });
-      io.to(user.room).emit('START_MUSIC');
+      io.to(room.id).emit('IS_EVERYBODY_READY', {
+        isReady:
+          room.players.length ===
+          players.filter((p) => p.loading === 100).length,
+      });
     });
 
     socket.on('ADD_SCORE', ({ score, step, answer }, callback) => {
       const user = getUser({ id: socket.id });
-      const room = getRoom(user.room);
+      let room = getRoom(user.room);
 
-      const game = addScore(
+      const updatedRoom = addScore(
         room.id,
         user.id,
         user.username,
@@ -195,28 +169,28 @@ const getIo = function (server) {
         answer,
         step
       );
-      const usersLength = room.users.length;
 
-      io.to(room.id).emit('UPDATE_SCORES', { game });
+      const usersLength = room.players.length;
 
-      if (game.rounds[step].scores.length === usersLength) {
+      io.to(room.id).emit('UPDATE_SCORES', updatedRoom);
+      if (updatedRoom.rounds[step - 1].scores.length === usersLength) {
         const nextStep = step + 1;
+        room = updateRoom(room.id, { next_step: nextStep });
         cleanReadyPlayers(room.id);
 
         io.to(room.id).emit('NEXT_ROUND', {
-          step: nextStep,
-          game,
-          isEndGame: nextStep === game.movies.length,
+          room: updatedRoom,
+          isEndGame: nextStep === room.musics.length,
         });
       }
 
-      callback({ game });
+      callback(updatedRoom);
     });
 
-    socket.on('GET_GAME', ({ roomId }, callback) => {
-      const game = getGame(roomId);
-      const room = getRoom(roomId);
-      callback({ game, room });
+    socket.on('ASK_NEW_GAME', () => {
+      const user = getUser({ id: socket.id });
+      const room = resetGame(user.room);
+      io.to(user.room).emit('NEW_GAME', room);
     });
   });
 
@@ -224,25 +198,8 @@ const getIo = function (server) {
 };
 
 const joinRoom = function (socket, username, room, isCreator) {
-  let user = getUser({ username });
-
-  if (!user) {
-    const newUser = addUser({ id: socket.id, username, room, isCreator });
-
-    if (newUser.error) return callback(newUser.error);
-    user = newUser.user;
-  } else {
-    updateUser(username, { id: socket.id, room });
-  }
-
-  // Emit will send message to the user
-  // who had joined
-  socket.emit('MESSAGE', {
-    user: 'admin',
-    text: `${user.username},
-    welcome to room ${room}.`,
-  });
-
+  const user = addUser(socket.id, username, room, isCreator);
+  if (user.error) return callback(user.error);
   socket.join(room);
 
   io.to(room).emit('ROOM_USERS', getUsersInRoom(room));
