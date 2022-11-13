@@ -2,6 +2,13 @@ import { v4 } from 'uuid';
 const games = [];
 const readyPlayers = {};
 
+/**
+ * @name createGame
+ * @param {string} roomId
+ * @param {Object[]} musics
+ * @param {Object[]} users
+ * @returns {Object}
+ */
 const createGame = (roomId, musics, users) => {
   const id = v4();
   const movieTitles = [];
@@ -23,6 +30,16 @@ const createGame = (roomId, musics, users) => {
   return games[gameIndex];
 };
 
+/**
+ * @name addScore
+ * @param {string} roomId
+ * @param {string} userId
+ * @param {string} username
+ * @param {number} score
+ * @param {string} answer
+ * @param {number} step
+ * @returns {Object}
+ */
 const addScore = (roomId, userId, username, score, answer, step) => {
   const game = games.find((g) => g.room === roomId);
 
@@ -43,15 +60,45 @@ const addScore = (roomId, userId, username, score, answer, step) => {
   return game;
 };
 
-const deleteGame = ({ gameId, roomId }) => {
-  const index = games.findIndex((g) => g.id === gameId || g.room === roomId);
+/**
+ * @name resetScore
+ * @param {string} roomId
+ * @returns {Object}
+ */
+const resetScore = (roomId) => {
+  const gameIndex = games.findIndex((g) => g.room === roomId);
 
-  if (index !== -1) {
-    const game = games.splice(index, 1);
-    return game[0];
+  if (gameIndex < 0) {
+    return { error: 'Game not found' };
   }
+
+  games[gameIndex].rounds = [];
+
+  return games[gameIndex];
 };
 
+/**
+ * @name deleteGame
+ * @param {Object}
+ * @returns { Object}
+ */
+const deleteGame = ({ gameId, roomId }) => {
+  const gameIndex = games.findIndex(
+    (g) => g.id === gameId || g.room === roomId
+  );
+
+  if (gameIndex < 0) {
+    return { error: 'Game not found' };
+  }
+
+  const game = games.splice(gameIndex, 1);
+  return game[0];
+};
+
+/**
+ * @name removeGameUser
+ * @param {Obejct}
+ */
 const removeGameUser = ({ gameId, roomId, userId }) => {
   const index = games.findIndex((g) => g.id === gameId || g.room === roomId);
   if (index !== -1) {
@@ -63,16 +110,25 @@ const removeGameUser = ({ gameId, roomId, userId }) => {
   }
 };
 
+/**
+ * @name getGame
+ * @param {string} roomId
+ * @returns {Object}
+ */
 const getGame = (roomId) => {
   return games.find((g) => g.room === roomId);
 };
 
+/**
+ * @name getAllGames
+ * @returns {Object[]}
+ */
 const getAllGames = () => {
   return games;
 };
 
 /**
- *
+ * @name addReadyPlayer
  * @param {string} roomId
  * @param {string} userId
  * @returns {string[]}
@@ -89,7 +145,7 @@ const addReadyPlayer = (roomId, userId) => {
 };
 
 /**
- *
+ * @name cleanReadyPlayers
  * @param {string} roomid
  * @returns {Array}
  */
@@ -100,6 +156,7 @@ const cleanReadyPlayers = (roomid) => {
 module.exports = {
   createGame,
   addScore,
+  resetScore,
   deleteGame,
   getGame,
   getAllGames,

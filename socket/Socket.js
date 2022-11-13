@@ -4,7 +4,6 @@ import {
   removeUser,
   updateUser,
   getUser,
-  getAllUsers,
   getUsersInRoom,
 } from './User';
 
@@ -18,6 +17,7 @@ import {
   removeGameUser,
   addReadyPlayer,
   cleanReadyPlayers,
+  resetScore,
 } from './Game';
 
 import * as Musics from '../controllers/musicsController';
@@ -151,6 +151,7 @@ const getIo = function (server) {
 
     socket.on('ASK_NEW_GAME', (callback) => {
       const user = getUser({ id: socket.id });
+      resetScore(user.room);
       socket.broadcast.to(user.room).emit('NEW_GAME');
       callback({ user });
     });
