@@ -32,7 +32,6 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const user = await Users.getUser(id);
-  console.log('>>> user', user.historyToday);
   return res.json(user);
 });
 

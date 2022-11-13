@@ -13,7 +13,6 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
   const { user } = req.query;
-  console.log('>>> user', user);
   return res.json(await History.getAllHistory(user));
 });
 

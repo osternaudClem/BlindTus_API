@@ -3,7 +3,6 @@ import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 
 export async function getAllHistory(userId) {
-  console.log('>>> userId', userId);
   let filter = {};
   try {
     if (userId) {

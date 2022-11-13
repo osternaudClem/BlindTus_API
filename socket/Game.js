@@ -18,6 +18,11 @@ const createGame = (roomId, musics, users) => {
   games.push({
     id,
     room: roomId,
+    settings: {
+      time_limit: 30,
+      difficulty: 'easy',
+      total_musics: musics.length,
+    },
     step: 0,
     movies: movieTitles,
     rounds: [],
