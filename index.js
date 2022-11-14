@@ -67,7 +67,12 @@ function authenticateToken(req, res, next) {
   next();
 }
 
-app.use('/', express.static('datas'));
+app.use(
+  '/',
+  express.static('datas', {
+    etag: false,
+  })
+);
 
 // routes
 app.use('/doc', express.static(__dirname + '/doc'));

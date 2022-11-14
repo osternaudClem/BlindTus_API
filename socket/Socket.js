@@ -140,7 +140,7 @@ const getIo = function (server) {
       const user = getUser({ id: socket.id });
       const players = updateLoading(user.room, user.id, loading);
       io.to(user.room).emit('IS_EVERYBODY_READY', {
-        isReady: false,
+        allReady: false,
         loadings: players,
       });
     });
@@ -151,7 +151,7 @@ const getIo = function (server) {
       const players = updateLoading(room.id, user.id, 100);
 
       io.to(room.id).emit('IS_EVERYBODY_READY', {
-        isReady:
+        allReady:
           room.players.length ===
           players.filter((p) => p.loading === 100).length,
       });
