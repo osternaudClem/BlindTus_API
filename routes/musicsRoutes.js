@@ -29,11 +29,10 @@ router.get('/', async (req, res) => {
         withProposals,
         noShuffle,
         addNotVerified,
-        categories.split(',')
+        categories && categories.split(',')
       )
     );
   } catch (error) {
-    console.log('>>> error');
     return res.status(500).json({ error });
   }
 });

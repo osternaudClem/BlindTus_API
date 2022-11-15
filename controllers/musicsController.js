@@ -24,13 +24,9 @@ export async function getMusics(
     query.verified = true;
   }
 
-  console.log('>>> categories', categories);
-
   if (categories.length) {
     query.category = { $in: categories };
   }
-
-  console.log('>>> query', query);
 
   try {
     const musics = await MusicsModel.find(query)
@@ -134,8 +130,7 @@ export async function getMusics(
 
     return returnedMusics.length > 0 ? returnedMusics : shuffleMusics;
   } catch (error) {
-    console.log('>>> error', error);
-    throw error;
+    return error;
   }
 }
 
