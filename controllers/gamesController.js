@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { GamesModel, MoviesModel } from '../models';
+import { GamesModel, MoviesModel, TVShowsModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { shuffle } from '../utils/arrayUtils';
 import { errorMessages } from '../utils/errorUtils';
@@ -65,76 +65,9 @@ export async function generateNewGame(game) {
 
   game.code = code;
 
-  const movies = await MoviesModel.find();
   const proposals = [];
 
-  if (game.musics) {
-    game.musics.map((music) => {
-      const moviesGenres = music.movie.genres;
-      let moviesSameGenre = movies.filter((mo) => {
-        if (mo.title_fr === music.movie.title_fr) {
-          return;
-        }
-        return mo.genres[0] === moviesGenres[0];
-      });
-
-      if (moviesSameGenre.length < 10) {
-        const limit = moviesSameGenre.length;
-        const otherMoviesSameGenre = movies.filter((mo) => {
-          if (mo.title_fr === music.movie.title_fr) {
-            return;
-          }
-          return mo.genres.find((g) => g === moviesGenres[0]);
-        });
-
-        for (let i = 0; i < 10 - limit; i++) {
-          let isOk = false;
-          while (!isOk) {
-            for (let y = 0; y < otherMoviesSameGenre.length; y++) {
-              if (
-                otherMoviesSameGenre[y].title_fr !== music.movie.title_fr &&
-                !moviesSameGenre.some(
-                  (m) => m.title_fr === otherMoviesSameGenre[y].title_fr
-                )
-              ) {
-                moviesSameGenre.push(otherMoviesSameGenre[y]);
-                isOk = true;
-                break;
-              }
-            }
-            isOk = true;
-          }
-        }
-      }
-
-      const shuffledMovies = shuffle(movies);
-      if (moviesSameGenre.length < 10) {
-        const limit = moviesSameGenre.length;
-        for (let i = 0; i < 10 - limit; i++) {
-          let isOk = false;
-          while (!isOk) {
-            for (let y = 0; y < shuffledMovies.length; y++) {
-              if (
-                shuffledMovies[y].title_fr !== music.movie.title_fr &&
-                !moviesSameGenre.some(
-                  (m) => m.title_fr === shuffledMovies[y].title_fr
-                )
-              ) {
-                moviesSameGenre.push(shuffledMovies[y]);
-                isOk = true;
-                break;
-              }
-            }
-          }
-        }
-      }
-
-      const musicProposals = shuffle(moviesSameGenre)
-        .slice(0, 10)
-        .map(({ title_fr }) => title_fr);
-      proposals.push(musicProposals);
-    });
-  }
+  game.musics.map((music) => proposals.push(music.proposals));
 
   game.proposals = proposals;
 
@@ -142,12 +75,19 @@ export async function generateNewGame(game) {
 
   try {
     await newGame.save();
-    return await GamesModel.findById(newGame._id).populate({
-      path: 'musics',
-      populate: {
-        path: 'movie',
-      },
-    });
+    return await GamesModel.findById(newGame._id)
+      .populate({
+        path: 'musics',
+        populate: {
+          path: 'movie',
+        },
+      })
+      .populate({
+        path: 'musics',
+        populate: {
+          path: 'tvShow',
+        },
+      });
   } catch (error) {
     return error;
   }

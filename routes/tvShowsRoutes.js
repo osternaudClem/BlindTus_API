@@ -93,12 +93,15 @@ router.post('/', async (req, res) => {
 router.patch('/:show_id', async (req, res) => {
   const { show_id } = req.params;
   const { music_id, tvShow } = req.body;
-
   if (tvShow.title) {
     return res.json(await TVShows.updateTVShow(show_id, tvShow));
   }
 
-  return res.json(await TVShows.addMusicById(show_id, music_id));
+  if (music_id) {
+    return res.json(await TVShows.addMusicById(show_id, music_id));
+  }
+
+  return res.json({});
 });
 
 /**

@@ -19,18 +19,23 @@ router.get('/', async (req, res) => {
     withProposals = false,
     noShuffle = false,
     addNotVerified = false,
-    category,
+    categories,
   } = req.query;
 
-  return res.json(
-    await Musics.getMusics(
-      parseInt(limit),
-      withProposals,
-      noShuffle,
-      addNotVerified,
-      category
-    )
-  );
+  try {
+    return res.json(
+      await Musics.getMusics(
+        parseInt(limit),
+        withProposals,
+        noShuffle,
+        addNotVerified,
+        categories.split(',')
+      )
+    );
+  } catch (error) {
+    console.log('>>> error');
+    return res.status(500).json({ error });
+  }
 });
 
 router.patch('/all', async (req, res) => {

@@ -4,7 +4,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import readline from 'readline';
 import ytdl from 'ytdl-core';
 import slug from 'slug';
-import { MusicsModel, MoviesModel } from '../models';
+import { MusicsModel, MoviesModel, TVShowsModel } from '../models';
 import * as Categories from './categoriesController';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
@@ -16,7 +16,7 @@ export async function getMusics(
   withProposals = false,
   noShuffle = false,
   addNotVerified = false,
-  category = null
+  categories = []
 ) {
   let query = {};
 
@@ -24,9 +24,13 @@ export async function getMusics(
     query.verified = true;
   }
 
-  if (category) {
-    query.category = category;
+  console.log('>>> categories', categories);
+
+  if (categories.length) {
+    query.category = { $in: categories };
   }
+
+  console.log('>>> query', query);
 
   try {
     const musics = await MusicsModel.find(query)
@@ -45,51 +49,93 @@ export async function getMusics(
 
     if (withProposals) {
       const movies = await MoviesModel.find();
+      const tvShows = await TVShowsModel.find();
 
       shuffleMusics.map((music) => {
-        const moviesGenres = music.movie.genres;
-        let moviesSameGenre = movies.filter((mo) => {
-          if (mo.title_fr === music.movie.title_fr) {
-            return;
-          }
-          return mo.genres.find((g) => g === moviesGenres[0]);
-        });
+        if (music.movie) {
+          const moviesGenres = music.movie.genres;
+          let moviesSameGenre = movies.filter((mo) => {
+            if (mo.title_fr === music.movie.title_fr) {
+              return;
+            }
+            return mo.genres.find((g) => g === moviesGenres[0]);
+          });
 
-        const shuffledMovies = shuffle(movies);
-        if (moviesSameGenre.length < 10) {
-          const limit = moviesSameGenre.length;
-          for (let i = 0; i < 10 - limit; i++) {
-            let isOk = false;
-            while (!isOk) {
-              for (let y = 0; y < shuffledMovies.length; y++) {
-                if (
-                  shuffledMovies[y].title_fr !== music.movie.title_fr &&
-                  !moviesSameGenre.some(
-                    (m) => m.title_fr === shuffledMovies[y].title_fr
-                  )
-                ) {
-                  moviesSameGenre.push(shuffledMovies[y]);
-                  isOk = true;
-                  break;
+          const shuffledMovies = shuffle(movies);
+          if (moviesSameGenre.length < 10) {
+            const limit = moviesSameGenre.length;
+            for (let i = 0; i < 10 - limit; i++) {
+              let isOk = false;
+              while (!isOk) {
+                for (let y = 0; y < shuffledMovies.length; y++) {
+                  if (
+                    shuffledMovies[y].title_fr !== music.movie.title_fr &&
+                    !moviesSameGenre.some(
+                      (m) => m.title_fr === shuffledMovies[y].title_fr
+                    )
+                  ) {
+                    moviesSameGenre.push(shuffledMovies[y]);
+                    isOk = true;
+                    break;
+                  }
                 }
-              }
 
-              isOk = true;
+                isOk = true;
+              }
             }
           }
-        }
 
-        const musicProposals = shuffle(moviesSameGenre)
-          .slice(0, 10)
-          .map(({ title_fr }) => title_fr);
-        music.proposals = musicProposals;
-        returnedMusics.push(music);
+          const musicProposals = shuffle(moviesSameGenre)
+            .slice(0, 10)
+            .map(({ title_fr }) => title_fr);
+          music.proposals = musicProposals;
+          returnedMusics.push(music);
+        } else if (music.tvShow) {
+          const tvShowsGenres = music.tvShow.genres;
+          let tvShowsSameGenres = tvShows.filter((mo) => {
+            if (mo.title_fr === music.tvShow.title_fr) {
+              return;
+            }
+            return mo.genres.find((g) => g === tvShowsGenres[0]);
+          });
+
+          const shuffledTVShows = shuffle(tvShows);
+          if (tvShowsSameGenres.length < 10) {
+            const limit = tvShowsSameGenres.length;
+            for (let i = 0; i < 10 - limit; i++) {
+              let isOk = false;
+              while (!isOk) {
+                for (let y = 0; y < shuffledTVShows.length; y++) {
+                  if (
+                    shuffledTVShows[y].title_fr !== music.tvShow.title_fr &&
+                    !tvShowsSameGenres.some(
+                      (m) => m.title_fr === shuffledTVShows[y].title_fr
+                    )
+                  ) {
+                    tvShowsSameGenres.push(shuffledTVShows[y]);
+                    isOk = true;
+                    break;
+                  }
+                }
+
+                isOk = true;
+              }
+            }
+          }
+
+          const musicProposals = shuffle(tvShowsSameGenres)
+            .slice(0, 10)
+            .map(({ title_fr }) => title_fr);
+          music.proposals = musicProposals;
+          returnedMusics.push(music);
+        }
       });
     }
 
     return returnedMusics.length > 0 ? returnedMusics : shuffleMusics;
   } catch (error) {
-    return error;
+    console.log('>>> error', error);
+    throw error;
   }
 }
 

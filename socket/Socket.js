@@ -116,7 +116,16 @@ const getIo = function (server) {
     socket.on('INIT_GAME', async () => {
       const user = getUser({ id: socket.id });
       const room = getRoom(user.room);
-      const musics = await Musics.getMusics(room.settings.total_musics, true);
+
+      const musics = await Musics.getMusics(
+        room.settings.total_musics,
+        true,
+        false,
+        false,
+        Object.keys(room.settings.categories).filter(
+          (c) => room.settings.categories[c]
+        )
+      );
 
       updateRoom(room.id, {
         musics,
