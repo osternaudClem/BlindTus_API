@@ -18,6 +18,17 @@ const CategoriesSchema = new Schema(
       type: 'string',
       unique: true,
     },
+
+    type: {
+      type: 'string',
+      default: 'movie', // movies or tvShows
+    },
+
+    // Associations
+    musics: {
+      type: Schema.Types.ObjectId,
+      ref: 'Musics',
+    },
   },
   {
     timestamps: {

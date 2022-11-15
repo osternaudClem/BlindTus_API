@@ -6,3 +6,4 @@ export { default as GamesRoute } from './gamesRoutes';
 export { default as HistoryRoute } from './historyRoutes';
 export { default as TodayRoute } from './todayRoutes';
 export { default as HistoryTodayRoute } from './historyTodayRoutes';
+export { default as TVShowsRoute } from './tvShowsRoutes';

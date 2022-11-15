@@ -45,6 +45,7 @@ router.get('/:id', async (req, res) => {
  */
 router.get('/find/:query', async (req, res) => {
   const { query } = req.params;
+  console.log('>>> query', query);
   return res.json(await Movies.findMovies(query));
 });
 
@@ -118,8 +119,8 @@ router.delete('/:movie_id', async (req, res) => {
   return res.json(await Movies.deleteMovie(movie_id));
 });
 
-router.post('/update-movies', async (req, res) => {
-  return res.json(await Movies.addCasts());
-});
+// router.post('/update-movies', async (req, res) => {
+//   return res.json(await Movies.patchAll());
+// });
 
 module.exports = router;

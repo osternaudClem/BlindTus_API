@@ -21,6 +21,7 @@ import {
   HistoryRoute,
   TodayRoute,
   HistoryTodayRoute,
+  TVShowsRoute,
 } from './routes';
 
 const PORT = process.env.PORT || 4000;
@@ -80,6 +81,7 @@ app.use('/categories', authenticateToken, CategoriesRoute);
 app.use('/musics', authenticateToken, MusicsRoute);
 app.use('/musicsday', authenticateToken, TodayRoute);
 app.use('/movies', authenticateToken, MoviesRoute);
+app.use('/tv-shows', authenticateToken, TVShowsRoute);
 app.use('/users', authenticateToken, UsersRoute);
 app.use('/games', authenticateToken, GamesRoute);
 app.use('/history', authenticateToken, HistoryRoute);

@@ -15,16 +15,23 @@ export async function getMusics(
   limit = 10,
   withProposals = false,
   noShuffle = false,
-  addNotVerified = false
+  addNotVerified = false,
+  category = null
 ) {
-  let musics = [];
+  let query = {};
+
+  if (!addNotVerified) {
+    query.verified = true;
+  }
+
+  if (category) {
+    query.category = category;
+  }
 
   try {
-    if (!addNotVerified) {
-      musics = await MusicsModel.find({ verified: true }).populate('movie');
-    } else {
-      musics = await MusicsModel.find().populate('movie');
-    }
+    const musics = await MusicsModel.find(query)
+      .populate('movie')
+      .populate('tvShow');
 
     let shuffleMusics = musics;
 
@@ -104,7 +111,9 @@ export async function getMusic(musicId, withProposals = false) {
   }
 
   try {
-    const music = await MusicsModel.findById(musicId).populate('movie');
+    const music = await MusicsModel.findById(musicId)
+      .populate('movie')
+      .populate('tvShow');
 
     let returnedMusic = null;
     if (withProposals) {

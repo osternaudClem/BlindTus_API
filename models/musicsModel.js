@@ -32,7 +32,7 @@ const MusicsSchema = new Schema(
 
     verified: {
       type: 'boolean',
-      default: true,
+      default: false,
     },
 
     // Associations
@@ -48,9 +48,9 @@ const MusicsSchema = new Schema(
       ref: 'Movies',
     },
 
-    today: {
+    tvShow: {
       type: Schema.Types.ObjectId,
-      ref: 'Today',
+      ref: 'TVShows',
     },
 
     today: {

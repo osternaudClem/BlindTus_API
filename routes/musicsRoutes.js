@@ -1,6 +1,7 @@
 import express from 'express';
 import * as Musics from '../controllers/musicsController';
 import * as Movies from '../controllers/moviesController';
+import * as TVShows from '../controllers/tvShowsController';
 const router = express.Router();
 
 /**
@@ -18,13 +19,16 @@ router.get('/', async (req, res) => {
     withProposals = false,
     noShuffle = false,
     addNotVerified = false,
+    category,
   } = req.query;
+
   return res.json(
     await Musics.getMusics(
       parseInt(limit),
       withProposals,
       noShuffle,
-      addNotVerified
+      addNotVerified,
+      category
     )
   );
 });
@@ -75,7 +79,11 @@ router.post('/', async (req, res) => {
 
   try {
     const savedMusic = await Musics.postMusic(music);
-    await Movies.addMusicById(music.movie, savedMusic._id);
+    if (music.type === 'movies') {
+      await Movies.addMusicById(music.movie, savedMusic._id);
+    } else if (music.type === 'tvShows') {
+      await TVShows.addMusicById(music.tvShow, savedMusic._id);
+    }
     return res.json(savedMusic);
   } catch (error) {
     return res.json(error);

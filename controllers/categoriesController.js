@@ -1,4 +1,4 @@
-import { CategoriesModel } from '../models';
+import { CategoriesModel, MoviesModel, TVShowsModel } from '../models';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 
@@ -26,6 +26,41 @@ export async function getCategory(categoryId) {
     }
 
     return category;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function getCategoryBySlug(slug, fields = null) {
+  if (!slug) {
+    return errorMessages.generals.missingId;
+  }
+
+  try {
+    let category = await CategoriesModel.findOne({ slug }).populate('musics');
+
+    let filledCategory = category._doc;
+
+    if (!category) {
+      return errorMessages.categories.notFound;
+    }
+    // Add movies
+    if (fields.includes('movies')) {
+      const movies = await MoviesModel.find({
+        category: category._id,
+      }).populate('added_by');
+      filledCategory = { ...filledCategory, movies };
+    }
+
+    if (fields.includes('tvShows')) {
+      const tvShows = await TVShowsModel.find({
+        category: category._id,
+      }).populate('added_by');
+
+      filledCategory = { ...filledCategory, tvShows };
+    }
+
+    return filledCategory;
   } catch (error) {
     return error;
   }

@@ -13,9 +13,7 @@ export async function getMusics() {
       },
     });
 
-    const shuffleMusics = shuffle(musics);
-
-    return shuffleMusics;
+    return musics;
   } catch (error) {
     return error;
   }
@@ -64,7 +62,11 @@ export async function getMusic() {
     });
 
     if (!music) {
-      const musics = await MusicsModel.find({ today: null, verified: true });
+      const musics = await MusicsModel.find({
+        today: null,
+        verified: true,
+        category: '626962053dcb17a8995789a1',
+      });
       const shuffledMusics = shuffle(musics);
 
       const newMusic = createNewEntity(

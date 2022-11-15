@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const MoviesSchema = new Schema(
+const TVShowsSchema = new Schema(
   {
     title: {
       type: 'string',
@@ -17,10 +17,6 @@ const MoviesSchema = new Schema(
       type: 'array',
     },
 
-    directors: {
-      type: 'array',
-    },
-
     casts: {
       type: 'array',
     },
@@ -33,7 +29,11 @@ const MoviesSchema = new Schema(
       type: 'string',
     },
 
-    release_date: {
+    first_air_date: {
+      type: 'number',
+    },
+
+    last_air_date: {
       type: 'number',
     },
 
@@ -57,6 +57,18 @@ const MoviesSchema = new Schema(
       type: 'array',
     },
 
+    number_of_episodes: {
+      type: 'number',
+    },
+
+    number_of_seasons: {
+      type: 'number',
+    },
+
+    status: {
+      type: 'string',
+    },
+
     verified: {
       type: 'boolean',
       default: false,
@@ -78,7 +90,7 @@ const MoviesSchema = new Schema(
     added_by: {
       type: Schema.Types.ObjectId,
       ref: 'Users',
-      default: '6329bcf462eb85395efa3320',
+      default: '6329bcf462eb85395efa3320', // Cl3tus
     },
   },
   {
@@ -89,4 +101,4 @@ const MoviesSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model('Movies', MoviesSchema);
+module.exports = mongoose.model('TVShows', TVShowsSchema);

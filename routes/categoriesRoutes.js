@@ -32,6 +32,23 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
+ * @api {get} /categories/:slug Get single category
+ * @apiVersion 0.0.1
+ * @apiName GetCategoryBySlug
+ * @apiGroup Categories
+ *
+ * @apiParam (Params) {String} id
+ *
+ * @apiSuccess {Object} category
+ *
+ */
+router.get('/slug/:slug', async (req, res) => {
+  const { slug } = req.params;
+  const { fields } = req.query;
+  return res.json(await Categories.getCategoryBySlug(slug, fields));
+});
+
+/**
  * @api {post} /categories Create new categorie
  * @apiVersion 0.0.1
  * @apiName PostCategories

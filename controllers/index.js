@@ -6,3 +6,4 @@ export { default as HistoryConroller } from './historyController';
 export { default as MoviesController } from './moviesController';
 export { default as ErrorController } from './errorController';
 export { default as TodayController } from './todayController';
+export { default as TvShowsController } from './tvShowsController';

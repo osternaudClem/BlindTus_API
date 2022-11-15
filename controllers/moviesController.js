@@ -192,22 +192,12 @@ export async function addMusicById(movie_id, music_id) {
   }
 }
 
-export async function addCasts() {
+export async function patchAll() {
   try {
-    const movies = await MoviesModel.find();
-    movies.map(async (movie, index) => {
-      const movieFound = await findMovieById(movie.imdb_id);
-
-      if (!movie.casts || !movie.casts.length) {
-        movie.casts = [];
-
-        movieFound.credits.cast.slice(0, 4).map((actor) => {
-          movie.casts.push(actor.name);
-        });
-
-        await movie.save();
-      }
-    });
+    // await MoviesModel.updateMany(
+    //   {},
+    //   { $set: { category: ['626962053dcb17a8995789a1'] } }
+    // );
 
     return 'ok';
   } catch (error) {
