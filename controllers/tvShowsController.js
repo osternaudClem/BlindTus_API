@@ -8,7 +8,9 @@ const mdb = new MovieDb(process.env.THEMOVIEDB_KEY);
 
 export async function getTVShows(filter) {
   try {
-    return await TVShowsModel.find(filter).populate('added_by');
+    return await TVShowsModel.find(filter)
+      .populate('added_by')
+      .populate('category');
   } catch (error) {
     return error;
   }

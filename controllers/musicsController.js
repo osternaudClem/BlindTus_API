@@ -6,6 +6,8 @@ import ytdl from 'ytdl-core';
 import slug from 'slug';
 import { MusicsModel, MoviesModel, TVShowsModel } from '../models';
 import * as Categories from './categoriesController';
+import * as Movies from './moviesController';
+import * as TVShows from './tvShowsController';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 import { shuffle } from '../utils/arrayUtils';
@@ -210,6 +212,11 @@ export async function postMusic(music) {
   try {
     const music = await newMusic.save();
     await Categories.patchCategory(categoryId, { musics: music._id });
+    if (music.movie) {
+      await Movies.addMusicById(music.movie._id, music._id);
+    } else if (music.tvShow) {
+      await TVShows.addMusicById(music.tvShow._id, music._id);
+    }
     return music;
   } catch (error) {
     return error;
