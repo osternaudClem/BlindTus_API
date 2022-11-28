@@ -35,4 +35,8 @@ export const errorMessages = Object.freeze({
   history: {
     notFound: 'History not found',
   },
+
+  notifications: {
+    notFound: 'Notification not found',
+  },
 });

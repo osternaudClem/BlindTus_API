@@ -29,6 +29,7 @@ const getIo = function (server) {
     cors: {
       origin: [
         'http://localhost:3000',
+        'http://localhost:3001',
         'https://admin.socket.io',
         'https://blindtus.com',
       ],

@@ -42,7 +42,7 @@ const TVShowsSchema = new Schema(
     },
 
     mdb_id: {
-      type: 'string',
+      type: 'number',
     },
 
     tagline: {
@@ -54,6 +54,10 @@ const TVShowsSchema = new Schema(
     },
 
     genres: {
+      type: 'array',
+    },
+
+    networks: {
       type: 'array',
     },
 

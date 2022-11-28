@@ -57,13 +57,21 @@ export async function saveTVShow(tvShow, music) {
 
   tvShow.genres = genres;
 
+  // Get networks
+  const networks = [];
+  tvShow.networks.map((network) => {
+    networks.push(network.name);
+  });
+
+  tvShow.networks = networks;
+
   tvShow.title_fr = tvShow.name;
   tvShow.title = tvShow.original_name;
   tvShow.first_air_date = parseInt(tvShow.first_air_date.slice(0, 4));
   tvShow.last_air_date = parseInt(tvShow.last_air_date.slice(0, 4));
+  tvShow.mdb_id = parseInt(tvShow.id);
 
   const savedTVShow = createNewEntity(tvShow, TVShowsModel);
-  console.log('>>> savedTVShow', savedTVShow);
   try {
     return await savedTVShow.save();
   } catch (error) {
@@ -167,4 +175,19 @@ export async function addMusicById(show_id, music_id) {
   } catch (error) {
     return error;
   }
+}
+
+export async function getNetwork() {
+  const tvShows = await TVShowsModel.find();
+
+  tvShows.map(async (tvShow) => {
+    const shows = await mdb.searchTv({
+      query: tvShow.title,
+      language: 'fr-FR',
+    });
+
+    await updateTVShow(tvShow._id, { mdb_id: parseInt(shows.results[0].id) });
+  });
+
+  return 'ok';
 }

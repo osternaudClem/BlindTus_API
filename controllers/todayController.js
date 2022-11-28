@@ -11,6 +11,9 @@ export async function getMusics() {
       populate: {
         path: 'movie',
       },
+      populate: {
+        path: 'tvShow',
+      },
     });
 
     return musics;
@@ -54,18 +57,24 @@ export async function getMusic() {
         $gte: start,
         $lt: end,
       },
-    }).populate({
-      path: 'music',
-      populate: {
-        path: 'movie',
-      },
-    });
+    })
+      .populate({
+        path: 'music',
+        populate: {
+          path: 'movie',
+        },
+      })
+      .populate({
+        path: 'music',
+        populate: {
+          path: 'tvShow',
+        },
+      });
 
     if (!music) {
       const musics = await MusicsModel.find({
         today: null,
         verified: true,
-        category: '626962053dcb17a8995789a1',
       });
       const shuffledMusics = shuffle(musics);
 
@@ -74,12 +83,19 @@ export async function getMusic() {
         TodayModel
       );
       music = await newMusic.save();
-      music = await music.populate({
-        path: 'music',
-        populate: {
-          path: 'movie',
-        },
-      });
+      music = await music
+        .populate({
+          path: 'music',
+          populate: {
+            path: 'movie',
+          },
+        })
+        .populate({
+          path: 'music',
+          populate: {
+            path: 'tvShow',
+          },
+        });
     }
 
     const count = await TodayModel.count();
@@ -91,12 +107,19 @@ export async function getMusic() {
 
 export async function getTodayFromYesterday() {
   try {
-    const music = await TodayModel.find().populate({
-      path: 'music',
-      populate: {
-        path: 'movie',
-      },
-    });
+    const music = await TodayModel.find()
+      .populate({
+        path: 'music',
+        populate: {
+          path: 'movie',
+        },
+      })
+      .populate({
+        path: 'music',
+        populate: {
+          path: 'tvShow',
+        },
+      });
 
     return music.at(-2);
   } catch (error) {

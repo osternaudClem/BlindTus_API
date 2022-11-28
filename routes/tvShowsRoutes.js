@@ -16,6 +16,10 @@ router.get('/', async (req, res) => {
   return res.json(await TVShows.getTVShows(filter));
 });
 
+router.patch('/', async (req, res) => {
+  return res.json(await TVShows.getNetwork());
+});
+
 /**
  * @api {get} /tv-shows/:id Get single tv show
  * @apiVersion 0.0.1
