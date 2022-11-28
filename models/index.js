@@ -7,3 +7,4 @@ export { default as GamesModel } from './gamesModel';
 export { default as HistoryModel } from './historyModel';
 export { default as TodayModel } from './todayModel';
 export { default as HistoryTodayModel } from './historyTodayModel';
+export { default as NotificationsModel } from './notificationsModel';

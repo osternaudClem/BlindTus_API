@@ -22,6 +22,7 @@ import {
   TodayRoute,
   HistoryTodayRoute,
   TVShowsRoute,
+  NotificationsRoute,
 } from './routes';
 
 const PORT = process.env.PORT || 4000;
@@ -86,6 +87,7 @@ app.use('/users', authenticateToken, UsersRoute);
 app.use('/games', authenticateToken, GamesRoute);
 app.use('/history', authenticateToken, HistoryRoute);
 app.use('/historytoday', authenticateToken, HistoryTodayRoute);
+app.use('/notifications', authenticateToken, NotificationsRoute);
 app.use(errorController);
 
 // Websocket
