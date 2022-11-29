@@ -91,6 +91,13 @@ const TVShowsSchema = new Schema(
       ref: 'Categories',
     },
 
+    forcePropositions: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'TVShows',
+      },
+    ],
+
     added_by: {
       type: Schema.Types.ObjectId,
       ref: 'Users',

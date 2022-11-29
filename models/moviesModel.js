@@ -75,6 +75,13 @@ const MoviesSchema = new Schema(
       ref: 'Categories',
     },
 
+    forcePropositions: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Movies',
+      },
+    ],
+
     added_by: {
       type: Schema.Types.ObjectId,
       ref: 'Users',

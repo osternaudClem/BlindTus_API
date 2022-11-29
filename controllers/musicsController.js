@@ -33,7 +33,13 @@ export async function getMusics(
   try {
     const musics = await MusicsModel.find(query)
       .populate('movie')
-      .populate('tvShow');
+      .populate('tvShow')
+      .populate({
+        path: 'movie',
+        populate: {
+          path: 'forcePropositions',
+        },
+      });
 
     let shuffleMusics = musics;
 
@@ -51,7 +57,9 @@ export async function getMusics(
 
       shuffleMusics.map((music) => {
         if (music.movie) {
+          // console.log('>>> musics', music.movie.forcePropositions);
           const moviesGenres = music.movie.genres;
+
           let moviesSameGenre = movies.filter((mo) => {
             if (mo.title_fr === music.movie.title_fr) {
               return;
@@ -59,8 +67,8 @@ export async function getMusics(
             return mo.genres.find((g) => g === moviesGenres[0]);
           });
 
-          const shuffledMovies = shuffle(movies);
           if (moviesSameGenre.length < 10) {
+            const shuffledMovies = shuffle(movies);
             const limit = moviesSameGenre.length;
             for (let i = 0; i < 10 - limit; i++) {
               let isOk = false;
@@ -86,7 +94,11 @@ export async function getMusics(
           const musicProposals = shuffle(moviesSameGenre)
             .slice(0, 10)
             .map(({ title_fr }) => title_fr);
-          music.proposals = musicProposals;
+          music.movie.forcePropositions.map((proposal) => {
+            console.log('>>> proposal', proposal.title_fr);
+            musicProposals.unshift(proposal.title_fr);
+          });
+          music.proposals = musicProposals.slice(0, 7);
           returnedMusics.push(music);
         } else if (music.tvShow) {
           const tvShowsGenres = music.tvShow.genres;
@@ -124,6 +136,9 @@ export async function getMusics(
           const musicProposals = shuffle(tvShowsSameGenres)
             .slice(0, 10)
             .map(({ title_fr }) => title_fr);
+          music.tvShow.forcePropositions.map((proposal) => {
+            musicProposals.unshift(proposal.title_fr);
+          });
           music.proposals = musicProposals;
           returnedMusics.push(music);
         }

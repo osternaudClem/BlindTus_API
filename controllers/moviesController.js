@@ -22,7 +22,9 @@ export async function getMovie(movieId) {
   }
 
   try {
-    const movie = await MoviesModel.findById(movieId).populate('musics');
+    const movie = await MoviesModel.findById(movieId)
+      .populate('musics')
+      .populate('forcePropositions');
 
     if (!movie) {
       return errorMessages.movies.notFound;

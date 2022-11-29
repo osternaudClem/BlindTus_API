@@ -95,11 +95,11 @@ router.patch('/:movie_id', async (req, res) => {
   const { movie_id } = req.params;
   const { music_id, movie } = req.body;
 
-  if (movie.title) {
-    return res.json(await Movies.updateMovie(movie_id, movie));
+  if (music_id) {
+    return res.json(await Movies.addMusicById(movie_id, music_id));
   }
 
-  return res.json(await Movies.addMusicById(movie_id, music_id));
+  return res.json(await Movies.updateMovie(movie_id, movie));
 });
 
 /**

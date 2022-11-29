@@ -22,7 +22,9 @@ export async function getTVShow(id) {
   }
 
   try {
-    const tvShow = await TVShowsModel.findById(id).populate('musics');
+    const tvShow = await TVShowsModel.findById(id)
+      .populate('musics')
+      .populate('forcePropositions');
 
     if (!tvShow) {
       return errorMessages.tvShow.notFound;
