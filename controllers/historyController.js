@@ -1,4 +1,5 @@
 import { HistoryModel } from '../models';
+import * as Users from './usersController';
 import { createNewEntity, mergeEntity } from '../utils/modelUtils';
 import { errorMessages } from '../utils/errorUtils';
 
@@ -49,9 +50,24 @@ export async function getHistory(historyId) {
 
 export async function generateHistory(history) {
   const newHistory = createNewEntity(history, HistoryModel);
-
   try {
-    return await newHistory.save();
+    await newHistory.save();
+
+    let multiExp = 1;
+
+    if (history.game.difficulty === 'difficult') {
+      multiExp = multiExp * 1.6;
+    }
+
+    if (history.game.categories.length > 1) {
+      multiExp = multiExp * 1.3;
+    }
+
+    return await Users.patchUser(history.user._id, {
+      exp: Math.round(
+        history.user.exp + parseInt(history.totalScore * multiExp)
+      ),
+    });
   } catch (error) {
     return error;
   }
