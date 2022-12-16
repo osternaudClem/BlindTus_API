@@ -57,7 +57,6 @@ export async function getMusics(
 
       shuffleMusics.map((music) => {
         if (music.movie) {
-          // console.log('>>> musics', music.movie.forcePropositions);
           const moviesGenres = music.movie.genres;
 
           let moviesSameGenre = movies.filter((mo) => {
@@ -95,10 +94,9 @@ export async function getMusics(
             .slice(0, 10)
             .map(({ title_fr }) => title_fr);
           music.movie.forcePropositions.map((proposal) => {
-            console.log('>>> proposal', proposal.title_fr);
             musicProposals.unshift(proposal.title_fr);
           });
-          music.proposals = musicProposals.slice(0, 7);
+          music.proposals = [...new Set(musicProposals)].slice(0, 7);
           returnedMusics.push(music);
         } else if (music.tvShow) {
           const tvShowsGenres = music.tvShow.genres;
@@ -139,7 +137,7 @@ export async function getMusics(
           music.tvShow.forcePropositions.map((proposal) => {
             musicProposals.unshift(proposal.title_fr);
           });
-          music.proposals = musicProposals;
+          music.proposals = [...new Set(musicProposals)].slice(0, 7);
           returnedMusics.push(music);
         }
       });
