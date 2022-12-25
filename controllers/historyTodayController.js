@@ -82,8 +82,6 @@ export async function saveHistory(history) {
       exp = expPerRound[updatedHistory.attempts.length - 1];
     }
 
-    console.log('>>> updatedHistory', updatedHistory);
-
     return {
       user: await Users.patchUser(updatedHistory.user._id, {
         exp: Math.round(updatedHistory.user.exp + parseInt(exp)),
